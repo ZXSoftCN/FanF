@@ -54,10 +54,10 @@ public class DomainBaseTestA {
         region.setCode("002");
         region.setName("广州");
         region.setLogoUrl("/resources/img/region/001.icon");
-
         regionDao.save(region);
     }
 
+    
     @Test
     @Rollback(value = false)
     public void createBankGroup(){
