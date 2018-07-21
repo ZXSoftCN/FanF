@@ -56,7 +56,6 @@ public class DomainBaseTestA {
         region.setLogoUrl("/resources/img/region/001.icon");
         regionDao.save(region);
     }
-
     
     @Test
     @Rollback(value = false)
