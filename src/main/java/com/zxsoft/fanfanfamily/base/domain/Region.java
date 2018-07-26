@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "sys_region")
+@NamedEntityGraph(name = "Resources.lazy", attributeNodes = {@NamedAttributeNode("resources")})
 public class Region extends BaseEntity {
     private static final long serialVersionUID = -8301655546503914165L;
 
@@ -16,10 +17,10 @@ public class Region extends BaseEntity {
     private String description;
     //地区logo
     private String logoUrl;
-
+    private Set<RegionResource> resources;
     private Set<Bank> banks;
 
-    @JsonIgnore
+//    @JsonIgnore
     @OneToMany( fetch = FetchType.LAZY,mappedBy = "region")
 //    @JoinColumn(name = "regionId")
     public Set<Bank> getBanks() {
@@ -64,5 +65,15 @@ public class Region extends BaseEntity {
 
     public void setLogoUrl(String logoUrl) {
         this.logoUrl = logoUrl;
+    }
+
+    //    @JSONField(serialize=true)
+    @OneToMany(cascade = {CascadeType.REMOVE},mappedBy = "region",fetch = FetchType.LAZY)
+    public Set<RegionResource> getResources() {
+        return resources;
+    }
+
+    public void setResources(Set<RegionResource> resources) {
+        this.resources = resources;
     }
 }

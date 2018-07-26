@@ -6,6 +6,7 @@ import com.zxsoft.fanfanfamily.mort.domain.vo.RegionCount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +26,9 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     List<Region> findAll(Sort sort);
     @Override
     Page<Region> findAll(org.springframework.data.domain.Pageable pageable);
+
+    @EntityGraph(attributePaths = { "resources" })
+    Page<Region> queryAllByIdIsNotNull(Pageable pageable);
 
     @Transactional
     @Modifying
