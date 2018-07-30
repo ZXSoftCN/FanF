@@ -3,8 +3,13 @@ package com.zxsoft.fanfanfamily.config;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
+import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -15,8 +20,16 @@ import org.springframework.transaction.annotation.TransactionManagementConfigure
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+/*
+*     @EnableJpaRepositories(basePackages = {"com.zxsoft.fanfanfamily.mort.repository"},
+        includeFilters = @ComponentScan.Filter(type = FilterType.REGEX,pattern  = {"com.zxsoft.fanfanfamily.*.repository"}),
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION,value = {NoRepositoryBean.class})
+)
+ */
+
+
 @Configuration
-@EnableJpaRepositories(basePackages = {"com.zxsoft.fanfanfamily.mort.repository"})
+@EnableJpaRepositories(basePackages = {"com.zxsoft.fanfanfamily.mort.repository","com.zxsoft.fanfanfamily.base.repository"})
 @EnableTransactionManagement()
 public class DataSourceConfig  implements TransactionManagementConfigurer {
     @Autowired

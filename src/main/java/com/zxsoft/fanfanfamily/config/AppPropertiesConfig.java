@@ -65,9 +65,9 @@ public class AppPropertiesConfig {
     private String fastJsonDateFormat;
     @Value("${RandomLessHundred}")
     private int randomLessHundred;
-    @Value("${appDateFormat}")
+    @Value("${AppDateFormat}")
     private String appDateFormat;
-    @Value("${appShortDateFormat}")
+    @Value("${AppShortDateFormat}")
     private String appShortDateFormat;
 
     @Autowired

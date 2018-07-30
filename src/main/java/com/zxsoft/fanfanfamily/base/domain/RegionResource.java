@@ -18,7 +18,7 @@ public class RegionResource implements Serializable {
     private Region region;
 
     @Id
-    @GenericGenerator(name = "generator", strategy = "uuid")
+    @GenericGenerator(name = "generator", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "generator")
     @Column(name = "id",nullable = false,length = 36)
     public String getId() {

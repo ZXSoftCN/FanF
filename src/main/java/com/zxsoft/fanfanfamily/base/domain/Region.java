@@ -1,14 +1,18 @@
 package com.zxsoft.fanfanfamily.base.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
+/*
+*
+ */
 @Entity
 @Table(name = "sys_region")
-@NamedEntityGraph(name = "Resources.lazy", attributeNodes = {@NamedAttributeNode("resources")})
+@NamedEntityGraph(name = "Region.lazy",
+        attributeNodes = {@NamedAttributeNode("resources"),@NamedAttributeNode("banks")})
 public class Region extends BaseEntity {
     private static final long serialVersionUID = -8301655546503914165L;
 
@@ -17,19 +21,9 @@ public class Region extends BaseEntity {
     private String description;
     //地区logo
     private String logoUrl;
-    private Set<RegionResource> resources;
-    private Set<Bank> banks;
-
-//    @JsonIgnore
-    @OneToMany( fetch = FetchType.LAZY,mappedBy = "region")
-//    @JoinColumn(name = "regionId")
-    public Set<Bank> getBanks() {
-        return banks;
-    }
-
-    public void setBanks(Set<Bank> banks) {
-        this.banks = banks;
-    }
+    private Set<RegionResource> resources = new HashSet<>();
+    private Set<Bank> banks = new HashSet<>();
+    private Set<Organization> organizations = new HashSet<>();
 
     @Column(name = "name")
     public String getName() {
@@ -67,6 +61,19 @@ public class Region extends BaseEntity {
         this.logoUrl = logoUrl;
     }
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(name = "sys_region_bank",
+            joinColumns = {@JoinColumn(name = "regionId", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "bankId", referencedColumnName ="id",
+                    foreignKey = @ForeignKey(name = "FK_BankToRegion"))})
+    public Set<Bank> getBanks() {
+        return banks;
+    }
+
+    public void setBanks(Set<Bank> banks) {
+        this.banks = banks;
+    }
+
     //    @JSONField(serialize=true)
     @OneToMany(cascade = {CascadeType.REMOVE},mappedBy = "region",fetch = FetchType.LAZY)
     public Set<RegionResource> getResources() {
@@ -76,4 +83,14 @@ public class Region extends BaseEntity {
     public void setResources(Set<RegionResource> resources) {
         this.resources = resources;
     }
+
+    @OneToMany(cascade = {CascadeType.REMOVE},mappedBy = "region",fetch = FetchType.LAZY)
+    public Set<Organization> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(Set<Organization> organizations) {
+        this.organizations = organizations;
+    }
+
 }

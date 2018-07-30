@@ -27,7 +27,7 @@ public class TraceLog implements Serializable {
 	}
 
 	@Id
-	@GenericGenerator(name = "generator", strategy = "uuid")
+	@GenericGenerator(name = "generator", strategy = "org.hibernate.id.UUIDGenerator")
 	@GeneratedValue(generator = "generator")
 	@Column(name = "id",nullable = false,length = 36)
 	public String getId() {

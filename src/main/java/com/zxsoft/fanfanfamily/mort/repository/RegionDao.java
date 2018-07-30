@@ -1,6 +1,8 @@
 package com.zxsoft.fanfanfamily.mort.repository;
 
 import com.zxsoft.fanfanfamily.base.domain.Region;
+import com.zxsoft.fanfanfamily.base.domain.Region;
+import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
 import com.zxsoft.fanfanfamily.mort.domain.custom.RegionDaoCustom;
 import com.zxsoft.fanfanfamily.mort.domain.vo.RegionCount;
 import org.springframework.data.domain.Page;
@@ -13,22 +15,34 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
 public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom {
 
-    @Override
-    Optional<Region> findById(String id);
-    Optional<Region> findRegionByCode(String code);
-
-    @Override
-    List<Region> findAll(Sort sort);
-    @Override
-    Page<Region> findAll(org.springframework.data.domain.Pageable pageable);
-
+    //一组惯用查询方法
+    Optional<Region> findFirstByCode(String code);
+    Optional<Region> findFirstByName(String name);
+    //------------!!!   Containing 等价于Sql查询中的like.而不是find*ByNameLike.
+    Optional<Region> findFirstByNameContaining(String namePart);
+    Optional<Region> findFirstByCodeOrName(String code,String name);
+    Page<Region> findByNameContaining(String nameLike, Pageable page);
+    List<Region> findAllByNameContaining(String nameLike);
+    Page<Region> findByCodeStartingWith(String codeStart,Pageable page);
+    List<Region> findAllByCodeStartingWith(String codeStart);
+    
+    //扩展
+    List<Region> findRegionsByBanksIn(Bank bank);
+    
     @EntityGraph(attributePaths = { "resources" })
     Page<Region> queryAllByIdIsNotNull(Pageable pageable);
+    @EntityGraph(attributePaths = { "banks" })
+    List<Region> queryAllByBanksIn(Bank bank);
+    @EntityGraph(attributePaths = { "banks" })
+    Optional<Region> queryFirstByCode(String code);
+    @EntityGraph(attributePaths = { "banks" })
+    Optional<Region> queryFirstByNameContaining(String nameLike);
 
     @Transactional
     @Modifying
@@ -36,8 +50,9 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     int modifyLogoUrlById(String logoUrl, String id);
 
 //    @Query("select r.code,count(s.Id) from region r left join bank s on r.id = s.regsionId where r.id = ?1 group by r")
-    @Query("select r as region,count(s.id) as BankCount from Region r left join Bank s on r.id = s.region\n" +
-            "where r.id = :id group by r")
-    Page<RegionCount> findRegionCountById(@Param("id") String id, Pageable pageable);
+//    @Query("select r as region,count(s.id) as BankCount from Region r left join Bank s on r.id = s.region\n" +
+//            "where r.id = :id group by r")
+//    Page<RegionCount> findRegionCountById(@Param("id") String id, Pageable pageable);
+
 
 }

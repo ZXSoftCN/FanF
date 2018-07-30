@@ -5,6 +5,7 @@ import com.zxsoft.fanfanfamily.common.RandomGeneratorUtil;
 import com.zxsoft.fanfanfamily.base.domain.Permission;
 import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
+import com.zxsoft.fanfanfamily.mort.repository.UserInfoDao;
 import com.zxsoft.fanfanfamily.mort.service.UserInfoService;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;

@@ -26,14 +26,14 @@
 
     <root level="info">
         <appender-ref ref="console" />
-        <appender-ref ref="file" />
+        <!--<appender-ref ref="file" />-->
     </root>
 
     <!-- logback为java中的包 -->
     <logger name="com.zxsoft.fanfanfamily"/>
     <!--logback.LogbackDemo：类的全路径 -->
-    <!--<logger name="com.example.demo.Controller.DemoController" level="INFO" additivity="false">-->
-        <!--<appender-ref ref="file"/>-->
-        <!--<appender-ref ref="console"/>-->
-    <!--</logger>-->
+    <logger name="com.zxsoft.fanfanfamily.mort.controller.*" level="debug" additivity="false">
+        <appender-ref ref="file"/>
+        <appender-ref ref="console"/>
+    </logger>
 </configuration>

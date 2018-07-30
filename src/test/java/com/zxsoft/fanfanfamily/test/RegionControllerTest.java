@@ -29,9 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RegionControllerTest extends BaseTest {
 
 
-    
     @Autowired
-    private AppCrossOriginProperties appCrossOriginProperties;
+    private AppCrossOriginProperties crossOriginProperties;
     @Autowired
     private AppPropertiesConfig appPropertiesConfig;
 
@@ -40,7 +39,7 @@ public class RegionControllerTest extends BaseTest {
     @Rollback(value = true)
     public void addRegion() {
         //测试属性组
-        List<String> lstCrossOrigin = appCrossOriginProperties.getLocations();
+        List<String> lstCrossOrigin = crossOriginProperties.getLocations();
         List<String> lstOrgCC = appPropertiesConfig.getCrossOriginLocations();
 
         String requestBody = "{\"code\":\"006\",\"name\":\"郑州\"}";
@@ -133,7 +132,8 @@ public class RegionControllerTest extends BaseTest {
     @Test
     public void queryRegion() {
         RequestBuilder request;
-        String regionId = "003";// "402881e564c015100164c0154cbe0000";
+
+        String regionId = "402883e464d4013b0164d4015a510000";// "402881e564c015100164c0154cbe0000";
         request = get(String.format("/api/region/get/%s",regionId))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN);

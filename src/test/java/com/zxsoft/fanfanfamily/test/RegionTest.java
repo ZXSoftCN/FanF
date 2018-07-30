@@ -1,16 +1,28 @@
 package com.zxsoft.fanfanfamily.test;
 
+import com.zxsoft.fanfanfamily.base.domain.Organization;
+import com.zxsoft.fanfanfamily.base.domain.OrganizationType;
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
-import com.zxsoft.fanfanfamily.mort.repository.RegionDao;
-import com.zxsoft.fanfanfamily.mort.repository.RegionRescourceDao;
+import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
+import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
+import com.zxsoft.fanfanfamily.base.domain.mort.LimitStatus;
+import com.zxsoft.fanfanfamily.config.EntityManagerUtil;
+import com.zxsoft.fanfanfamily.mort.repository.LimitStatusDao;
+import com.zxsoft.fanfanfamily.base.repository.OrganizationDao;
+import com.zxsoft.fanfanfamily.base.repository.OrganizationTypeDao;
+import com.zxsoft.fanfanfamily.mort.repository.*;
+import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Rollback;
 
+import javax.persistence.EntityManager;
 import java.util.*;
-
-import static org.junit.Assert.*;
 
 public class RegionTest extends BaseTest {
 
@@ -18,6 +30,57 @@ public class RegionTest extends BaseTest {
     private RegionDao regionDao;
     @Autowired
     private RegionRescourceDao regionRescourceDao;
+
+    @Autowired
+    private PolicyTypeDao policyTypeDao;
+    @Autowired
+    private LimitStatusDao limitStatusDao;
+    @Autowired
+    private BankLoanPolicyDao bankLoanPolicyDao;
+    @Autowired
+    private EmployeeDao employeeDao;
+    @Autowired
+    private LoanPolicyNeedConditionDao loanPolicyNeedConditionDao;
+    @Autowired
+    private LoanPolicyNeedAttachDao loanPolicyNeedAttachDao;
+    @Autowired
+    private BankDao bankDao;
+    @Autowired
+    private OrganizationTypeDao organizationTypeDao;
+    @Autowired
+    private OrganizationDao organizationDao;
+    @Autowired
+    private EntityManagerUtil entityManagerUtil;
+    @Autowired
+    private EntityManager entityManager;
+
+
+    @Test
+    @Rollback(value = false)
+    public void createBaseEntityA(){
+        LimitStatus itemA = new LimitStatus();
+        itemA.setName("充足");
+        LimitStatus itemB = new LimitStatus();
+        itemB.setName("紧张");
+        Set<LimitStatus> collLimit = new HashSet<>();
+        collLimit.add(itemA);
+        collLimit.add(itemB);
+        limitStatusDao.saveAll(collLimit);
+    }
+
+    @Test
+    @Rollback(value = false)
+    public void createBaseEntity(){
+        OrganizationType itemType = new OrganizationType();
+        itemType.setName("分公司");
+        OrganizationType itemType2 = new OrganizationType();
+        itemType2.setName("加盟店");
+        Set<OrganizationType> collType = new HashSet<>();
+        collType.add(itemType);
+        collType.add(itemType2);
+
+        organizationTypeDao.saveAll(collType);
+    }
 
     @Test
     @Rollback(value = true)
@@ -36,6 +99,7 @@ public class RegionTest extends BaseTest {
         Region reg = new Region();
         reg.setCode("003");
         reg.setName("深圳");
+        reg.setLogoUrl("/icon/test.icon");
         regionDao.save(reg);
 
         RegionResource resItem1 = new RegionResource();
@@ -56,30 +120,242 @@ public class RegionTest extends BaseTest {
     }
 
     @Test
+    public void queryRegionCascade(){
+//        Region region = createBaseEntity();
+
+//        Employee employee = entityManager.createQuery(
+//                "select e " +
+//                        "from Employee e " +
+//                        "left join fetch e.projects " +
+//                        "where " +
+//                        "	e.username = :username and " +
+//                        "	e.password = :password",
+//                Employee.class)
+//                .setParameter( "username", username)
+//                .setParameter( "password", password)
+//                .getSingleResult();
+    }
+
+    @Test
     @Rollback(value = false)
-    public void deleteCascadeRegion(){
-        Optional<Region> reg = regionDao.findRegionByCode("003");
-        if (reg.isPresent()) {
-            regionDao.delete(reg.get());
+    public void createOrganization(){
+        Organization item = new Organization();
+        item.setCode("901");
+        item.setName("一号店");
+
+        Optional<OrganizationType> itemType = organizationTypeDao.findFirstByNameContaining("分公司");
+        if (itemType.isPresent()) {
+            item.setOrganizationTypeId(itemType.get().getId());
+        }
+        Optional<Region> itemRegion = regionDao.findFirstByCodeOrName("","深圳");
+        if (itemRegion.isPresent()) {
+            item.setRegion(itemRegion.get());
+        }
+
+        organizationDao.save(item);
+    }
+    @Test
+    @Rollback(value = false)
+    public void createSubOrganization(){
+        Organization item = new Organization();
+        item.setCode("902");
+        item.setName("一号店01铺");
+
+        Optional<OrganizationType> itemType = organizationTypeDao.findFirstByNameContaining("分");
+        if (itemType.isPresent()) {
+            item.setOrganizationTypeId(itemType.get().getId());
+        }
+        Optional<Region> itemRegion = regionDao.findFirstByCodeOrName("","深圳");
+        if (itemRegion.isPresent()) {
+            item.setRegion(itemRegion.get());
+        }
+        Optional<Organization> itemOrg = organizationDao.findFirstByNameContaining("一");
+        if (itemOrg.isPresent()) {
+            item.setParentOrg(itemOrg.get());
+        }
+
+        organizationDao.save(item);
+    }
+
+    @Test
+    public void queryOrganization(){
+        DateTime dtQuery = DateTime.parse("2018-07-29");
+        Date dtItem = dtQuery.toDate();
+        List<Organization> itemQuery = organizationDao.customQueryByTestDate(dtItem);
+        if (itemQuery.size() > 0) {
+            System.out.println("OK");
+        } else {
+            System.out.println("failure");
+        }
+    }
+
+    @Test
+    public void queryOrgByEM() {
+        String orgId = "befe70e5-b83b-46b3-9ccd-c295eab6c60b";
+//        Organization itemOrg = entityManager.getReference(Organization.class,orgId);
+        Organization itemOrg = entityManager.find(Organization.class,orgId);
+        Assert.assertNotEquals(null, itemOrg);
+    }
+
+    @Test
+    public void queryOrganizatonType(){
+        Optional<OrganizationType> itemQuery = organizationTypeDao.findFirstByNameContaining("分公司");
+        if (itemQuery.isPresent()) {
+            System.out.println("OK");
+        } else {
+            System.out.println("failure");
+        }
+    }
+
+    @Test
+    public void queryParentOrg() {
+        List<Organization> lstAll;
+        Page<Organization> plstQuery;
+        Pageable pageable = PageRequest.of(0,2);
+        lstAll = organizationDao.customQueryByParentOrgCode("901");
+//        lstAll = organizationDao.queryByParentOrgNameContaining("店");
+        plstQuery = organizationDao.queryByParentOrgCode("901",pageable);
+        if (lstAll.size() > 0) {
+            System.out.println("Ok");
+        } else {
+            System.out.println("failure");
+        }
+
+        if (plstQuery.getSize() > 0) {
+            System.out.println("Page Ok");
+        } else {
+            System.out.println("Page failure");
         }
     }
 
     @Test
     @Rollback(value = false)
-    public void updateCascadeRegion(){
-        Optional<Region> reg = regionDao.findRegionByCode("003");
-        if (reg.isPresent()) {
-            Set<RegionResource> coll = reg.get().getResources();
-            RegionResource[] arrRes = new RegionResource[]{};
-            coll.toArray(arrRes);
-            List<RegionResource> lst = new ArrayList<>(coll);
-            RegionResource item = lst.get(0);
-            item.setResUrl("/icon/4.icon");
+    public void createEmployee() {
+        Employee itemNew = new Employee();
+        itemNew.setCode("E002");
+        itemNew.setName("李四");
+        itemNew.setAliasName("小子");
+        itemNew.setIntroduction("巴拉巴拉巴拉");
 
-            reg.get().setName("深圳（修改4）");
-//            regionDao.save(reg.get());//都会级联修改，特别注意级联删除
-            regionRescourceDao.save(item);
-//            System.out.println(item.getResUrl());
+        Optional<Organization> itemOrg = organizationDao.findFirstByCodeOrName("901","");
+        itemNew.setOrganization(itemOrg.orElse(null));
+
+        employeeDao.save(itemNew);
+    }
+
+    @Test
+    public void queryEmployeeByOrg() {
+        List<Employee> lstQuery;
+        lstQuery = employeeDao.queryAllByOrganization_Code("901");
+
+        if (lstQuery.size() > 0) {
+            System.out.println("OK");
+            for (Employee item : lstQuery) {
+                System.out.println(item.getName());
+            }
+        } else {
+            System.out.println("failure");
+        }
+    }
+
+    @Test
+    @Rollback(value = false)
+    public void createBank() {
+        Bank itemNew = new Bank();
+        itemNew.setCode("B001");
+        itemNew.setName("工商银行");
+        itemNew.setFullName("中国工商银行");
+        itemNew.setApprovedDay(15);
+        itemNew.setLoanDay(20);
+        itemNew.setIconUrl("/bank/001.icon");
+
+
+        bankDao.save(itemNew);
+        Optional<Region> itemRegion = regionDao.queryFirstByCode("003");
+        if (itemRegion.isPresent()) {
+            itemRegion.get().getBanks().add(itemNew);
+            regionDao.save(itemRegion.get());
+        }
+    }
+
+    @Test
+    @Rollback(value = false)
+    public void createBankB() {
+        Bank itemNew = new Bank();
+        itemNew.setCode("B002");
+        itemNew.setName("建设银行");
+        itemNew.setFullName("中国建设银行");
+        itemNew.setApprovedDay(10);
+        itemNew.setLoanDay(18);
+        itemNew.setIconUrl("/bank/002.icon");
+
+        Bank itemSubNew = new Bank();
+        itemSubNew.setCode("B003");
+        itemSubNew.setName("达路分行");
+        itemSubNew.setFullName("中国建设银行东莞八达路分行");
+        itemSubNew.setApprovedDay(10);
+        itemSubNew.setLoanDay(18);
+        itemSubNew.setIconUrl("/bank/003.icon");
+        itemSubNew.setParentBank(itemNew);
+
+        Set<Bank> collBank = new HashSet<>();
+        collBank.add(itemNew);
+        collBank.add(itemSubNew);
+
+        bankDao.saveAll(collBank);
+    }
+
+    /*
+    *通过bank建立同region的关系
+     */
+    @Test
+    @Rollback(value = false)
+    public void createBankC() {
+        Bank itemNew = new Bank();
+        itemNew.setCode("B004");
+        itemNew.setName("招商银行");
+        itemNew.setFullName("中国招商银行");
+        itemNew.setApprovedDay(10);
+        itemNew.setLoanDay(12);
+        itemNew.setIconUrl("/bank/004.icon");
+
+        Set<Bank> collBank = new HashSet<>();
+        collBank.add(itemNew);
+
+        bankDao.saveAll(collBank);
+
+        Optional<Region> itemRegion = regionDao.queryFirstByCode("002");
+        if (itemRegion.isPresent()) {
+            itemRegion.get().getBanks().add(itemNew);
+            regionDao.save(itemRegion.get());
+        }
+
+
+    }
+
+    @Test
+    @Rollback(value = false)
+    public void createBankRegion() {
+        Optional<Bank> itemBank = bankDao.findFirstByCodeIgnoreCase("B001");
+        Optional<Bank> itemBank2 = bankDao.findFirstByCodeIgnoreCase("B002");
+        Optional<Bank> itemBank3 = bankDao.findFirstByCodeIgnoreCase("B003");
+        Optional<Region> itemRegion = regionDao.queryFirstByCode("003");
+        Optional<Region> itemRegion2 = regionDao.queryFirstByCode("002");
+        Set<Bank> collBank = new HashSet<>();
+        Set<Bank> collBank2 = new HashSet<>();
+
+        boolean isAdd = itemBank.isPresent()?collBank.add(itemBank.get()):false;
+        collBank.add(itemBank2.orElse(null));
+
+        collBank2.add(itemBank2.orElse(null));
+        collBank2.add(itemBank3.orElse(null));
+        if (itemRegion.isPresent()) {
+            itemRegion.get().getBanks().addAll(collBank);
+            regionDao.save(itemRegion.get());
+        }
+        if (itemRegion2.isPresent()) {
+            itemRegion2.get().getBanks().addAll(collBank2);
+            regionDao.save(itemRegion2.get());
         }
     }
 

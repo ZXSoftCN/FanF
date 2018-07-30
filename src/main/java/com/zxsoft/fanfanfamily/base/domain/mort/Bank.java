@@ -15,8 +15,8 @@ public class Bank extends BaseEntity {
     private static final long serialVersionUID = -2727918037387072944L;
 
 
-    private String bankCode;
-    private String bankName;
+    private String code;
+    private String name;
     private Bank parentBank;
     //    private Set<Bank> subBanks = new HashSet<Bank>();
     private String iconUrl;
@@ -25,29 +25,27 @@ public class Bank extends BaseEntity {
     private int approvedDay;
     //放款天数
     private int loanDay;
-    //额度状态
-    private String limitStatus;
     //最近一次数据更新日期：使用BaseEntity上的lastUpdateTime;
 
     //所属城市或地区
-    private Region region;
+    private Set<Region> regions = new HashSet<>();
 
-    @Column(name = "bankCode")
-    public String getBankCode() {
-        return bankCode;
+    @Column(name = "code")
+    public String getCode() {
+        return code;
     }
 
-    public void setBankCode(String bankCode) {
-        this.bankCode = bankCode;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    @Column(name = "bankName")
-    public String getBankName() {
-        return bankName;
+    @Column(name = "name")
+    public String getName() {
+        return name;
     }
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH})
@@ -59,17 +57,6 @@ public class Bank extends BaseEntity {
     public void setParentBank(Bank parentBank) {
         this.parentBank = parentBank;
     }
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy ="id",fetch = FetchType.LAZY,cascade = {CascadeType.DETACH},targetEntity = Bank.class)
-//    public Set<Bank> getSubBanks() {
-//        return subBanks;
-//    }
-//
-//    public void setSubBanks(Set<Bank> subBanks) {
-//        this.subBanks = subBanks;
-//    }
-
 
     @Column(name = "icnoUrl")
     public String getIconUrl() {
@@ -106,23 +93,20 @@ public class Bank extends BaseEntity {
         this.loanDay = loanDay;
     }
 
-    @Column(name = "limitStatus")
-    public String getLimitStatus() {
-        return limitStatus;
+    //cascade = CascadeType.DETACH,
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},fetch = FetchType.LAZY,mappedBy = "banks")
+    public Set<Region> getRegions() {
+        return regions;
     }
 
-    public void setLimitStatus(String limitStatus) {
-        this.limitStatus = limitStatus;
+    public void setRegions(Set<Region> regions) {
+        this.regions = regions;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "regionId", foreignKey = @ForeignKey(name = "none", value =ConstraintMode.NO_CONSTRAINT),
-            columnDefinition = "varchar(36) DEFAULT ''")
-    public Region getRegion() {
-        return region;
-    }
-
-    public void setRegion(Region region) {
-        this.region = region;
+    //辅助方法：用于添加与地区的多对多关系。在Bank实例新增时添加Region保存，会因为cascade是Merge
+    //造成系统检查认为bank保存前还是detach状态，而无法更新到Region的banks属性，提示异常。
+    @Deprecated
+    private void addRegions(Set<Region> regions) {
+        this.regions.addAll(regions);
     }
 }
