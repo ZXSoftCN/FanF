@@ -35,13 +35,13 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     //扩展
     List<Region> findRegionsByBanksIn(Bank bank);
     
-    @EntityGraph(attributePaths = { "resources" })
+    @EntityGraph(attributePaths = { "resources","banks","organizations" })
     Page<Region> queryAllByIdIsNotNull(Pageable pageable);
-    @EntityGraph(attributePaths = { "banks" })
+    @EntityGraph(attributePaths = { "resources","banks","organizations" })
     List<Region> queryAllByBanksIn(Bank bank);
-    @EntityGraph(attributePaths = { "banks" })
+    @EntityGraph(attributePaths = { "resources","banks","organizations" })
     Optional<Region> queryFirstByCode(String code);
-    @EntityGraph(attributePaths = { "banks" })
+    @EntityGraph(attributePaths = { "resources","banks","organizations" })
     Optional<Region> queryFirstByNameContaining(String nameLike);
 
     @Transactional

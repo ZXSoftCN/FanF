@@ -3,16 +3,12 @@ package com.zxsoft.fanfanfamily.base.service.impl;
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
 import com.zxsoft.fanfanfamily.base.service.RegionService;
-import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import com.zxsoft.fanfanfamily.mort.repository.RegionDao;
 import com.zxsoft.fanfanfamily.mort.repository.RegionRescourceDao;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,43 +22,64 @@ import java.util.List;
 @Service
 public class RegionServiceImpl extends BaseServiceImpl<Region> implements RegionService {
 
-    private final String regionResPath = "region";
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String resPathName = "region";
+//    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private RegionDao regionDao;
     @Autowired
     private RegionRescourceDao regionRescourceDao;
-    @Autowired
-    private AppPropertiesConfig propertiesConfig;
-
 
 //    public RegionServiceImpl(){
 //    }
 
+    //<editor-fold desc="私有方法">
+    private void modifyIcon(Region region, Path path) {
+        try {
+            String strOld = region.getLogoUrl();
+            if (region.getLogoUrl().startsWith("file:/")) {
+                strOld = region.getLogoUrl().replaceFirst("file:/", "");
+            }
+            Path pathOld = Paths.get(strOld);
+            Files.deleteIfExists(pathOld);
+
+            region.setLogoUrl(path.toString());
+            regionDao.save(region);
+        }catch (IOException ex){
+            logger.error(String.format("%s Failed to store file:%s.%s",
+                    this.getClass().getName(),ex.getMessage(), System.lineSeparator()));//System.lineSeparator()换行符
+        }
+    }
+
+    //</editor-fold>
+
     @Override
     protected void initPath() {
         super.initPath();
-        rootUploadPath = super.getPath().resolve(regionResPath);
+        rootUploadPath = super.getPath().resolve(resPathName);
+        avatarUploadPath = super.getPath().resolve(super.avatar);
     }
 
-    @Override
-    public Path getPath() {
-        if (rootUploadPath == null) {
-            initPath();
-        }
-        return rootUploadPath;
-    }
+//    @Override
+//    public Path getPath() {
+//        if (rootUploadPath == null) {
+//            initPath();
+//        }
+//        return rootUploadPath;
+//    }
+//    @Override
+//    public Path getAvatarPath() {
+//        if (avatarUploadPath == null) {
+//            initPath();
+//        }
+//        return avatarUploadPath;
+//    }
 
     @Override
     public JpaRepository<Region, String> getBaseDao() {
         return regionDao;
     }
 
-    @Override
-    public void initResourceDirectory() {
-
-    }
 
     @Override
     public RegionResource addResource(MultipartFile file, String regionId) {
@@ -77,10 +94,10 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
             return null;
         }
         Region itemRegion = regionDao.findById(regionId).get();
-        String currDate = DateTime.now().toString(propertiesConfig.getAppShortDateFormat());
+        String currDate = DateTime.now().toString(appPropertiesConfig.getAppShortDateFormat());
         String postfix =  StringUtils.substringAfter(file.getOriginalFilename(),".");
         String newFileName = String.format("%s%s%d.%s",itemRegion.getCode(),currDate,
-                propertiesConfig.getRandomLessHundred(),postfix);
+                appPropertiesConfig.getRandomLessHundred(),postfix);
         try {
 //            file.getBytes();
             if (!Files.exists(getPath())) {
@@ -113,9 +130,9 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
             return  null;
         }
         Region itemRegion = regionDao.findById(regionId).get();
-        String currDate = DateTime.now().toString(propertiesConfig.getAppShortDateFormat());
+        String currDate = DateTime.now().toString(appPropertiesConfig.getAppShortDateFormat());
         String newFileName = String.format("%s%s%d.%s",itemRegion.getCode(),currDate,
-                propertiesConfig.getRandomLessHundred(),postfix);
+                appPropertiesConfig.getRandomLessHundred(),postfix);
         Path destPath = getPath().resolve(newFileName);
         try{
 //            File destFile = new File(destPath.toString());
@@ -188,9 +205,9 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
             Path pathNew = storeFile(file);
 
             String postfix = StringUtils.substringAfter(file.getOriginalFilename(), ".");
-            String currDate = DateTime.now().toString(propertiesConfig.getAppShortDateFormat());
+            String currDate = DateTime.now().toString(appPropertiesConfig.getAppShortDateFormat());
             String newFileName = String.format("%s%s%d.%s",itemRegion.getCode(),currDate,
-                    propertiesConfig.getRandomLessHundred(),postfix);
+                    appPropertiesConfig.getRandomLessHundred(),postfix);
             Path destPath = getPath().resolve(newFileName);
             Files.copy(file.getInputStream(), destPath,
                     StandardCopyOption.REPLACE_EXISTING);
@@ -213,9 +230,9 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     public RegionResource modifyResource(RegionResource regionResource, byte[] bytes, String originFileName, String postfix) {
 
         Region itemRegion = regionResource.getRegion();
-        String currDate = DateTime.now().toString(propertiesConfig.getAppShortDateFormat());
+        String currDate = DateTime.now().toString(appPropertiesConfig.getAppShortDateFormat());
         String newFileName = String.format("%s%s%d.%s",itemRegion.getCode(),currDate,
-                propertiesConfig.getRandomLessHundred(),postfix);
+                appPropertiesConfig.getRandomLessHundred(),postfix);
         Path destPath = getPath().resolve(newFileName);
         try{
 //            File destFile = new File(destPath.toString());
@@ -260,4 +277,41 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     public void deleteResource(RegionResource regionResource) {
 
     }
+
+    @Override
+    public Path uploadAvatarExtend(Region region, String fileName, String postfix, byte[] bytes) {
+        Path itemNew = uploadAvatar(fileName,postfix, bytes);
+        if (itemNew == null) {
+            return null;
+        }
+        //将Path路径保存至Region的IconUrl属性
+        modifyIcon(region,itemNew);
+
+        return itemNew;
+    }
+
+    @Override
+    public Path uploadAvatarExtend(Region region, MultipartFile file) {
+        Path itemNew = uploadAvatar(file);
+        if (itemNew == null) {
+            return null;
+        }
+        //将Path路径保存至Region的IconUrl属性
+        modifyIcon(region,itemNew);
+
+        return itemNew;
+    }
+
+    @Override
+    public Path loadAvatar(Region region) {
+        String strUrl = region.getLogoUrl();
+        return loadAvatarInner(strUrl);
+    }
+
+    @Override
+    public Path loadAvatar(Region region, int width, int height, double scaling) {
+        String strUrl = region.getLogoUrl();
+        return loadAvatarInner(strUrl,width,height,scaling);
+    }
+
 }

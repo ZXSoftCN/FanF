@@ -4,6 +4,7 @@ import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -24,6 +25,12 @@ public interface BankDao extends JpaRepository<Bank,String> {
     List<Bank> findAllByNameContaining(String nameLike);
     Page<Bank> findByCodeStartingWith(String codeStart,Pageable page);
     List<Bank> findAllByCodeStartingWith(String codeStart);
+
+    //扩展
+    @EntityGraph(attributePaths = { "regions"})
+    Optional<Bank> queryFirstByCode(String code);
+    @EntityGraph(attributePaths = { "regions"})
+    Optional<Bank> queryFirstByNameContaining(String nameLike);
 
     //根据所属区域查询
     Page<Bank> findAllByRegionsInOrderByCode(Region region,Pageable pageable);

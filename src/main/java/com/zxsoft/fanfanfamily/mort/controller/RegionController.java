@@ -4,6 +4,7 @@ import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
 import com.zxsoft.fanfanfamily.base.service.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 @RestController
@@ -52,6 +54,43 @@ public class RegionController {
             itemR = ResponseEntity.ok(pcollRegion);
         }else{
             itemR = ResponseEntity.status(200).body(null);
+        }
+        return itemR;
+    }
+
+    @PostMapping(value = "/region/updateAvatar",consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadAvatar(@RequestParam(value = "regionId",required = true) Region region,
+                                                 @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
+                                                 @RequestParam(value = "postfix",required = true) String postfix,
+                                                 @RequestBody(required = true) byte[] bytes){
+        ResponseEntity<String> itemR ;
+        Path item =  regionService.uploadAvatarExtend(region,fileName,postfix,bytes);
+
+        if (item != null) {
+            itemR = ResponseEntity.ok(item.toString());
+        }else{
+            itemR = ResponseEntity.status(200).body("");
+        }
+        return itemR;
+    }
+
+    @PostMapping(value = "/region/loadAvatar")
+    public ResponseEntity<String> loadAvatar(@RequestParam(value = "regionId",required = true) Region region,
+                                                @RequestParam(value = "width",required = false,defaultValue = "0") int width,
+                                                @RequestParam(value = "height",required = false,defaultValue = "0") int height,
+                                                @RequestParam(value = "scaling",required = false,defaultValue = "1") double scaling){
+        ResponseEntity<String> itemR ;
+        Path item;
+        if (width == 0 && height == 0) {
+            item = regionService.loadAvatar(region);
+        }else{
+            item = regionService.loadAvatar(region,width,height,scaling);
+        }
+
+        if (item != null) {
+            itemR = ResponseEntity.ok(item.toString());
+        }else{
+            itemR = ResponseEntity.status(200).body("");
         }
         return itemR;
     }

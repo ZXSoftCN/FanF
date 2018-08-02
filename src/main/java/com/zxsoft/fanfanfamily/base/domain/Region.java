@@ -4,6 +4,7 @@ import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /*
@@ -12,7 +13,8 @@ import java.util.Set;
 @Entity
 @Table(name = "sys_region")
 @NamedEntityGraph(name = "Region.lazy",
-        attributeNodes = {@NamedAttributeNode("resources"),@NamedAttributeNode("banks")})
+        attributeNodes = {@NamedAttributeNode("resources"),@NamedAttributeNode("banks"),
+                @NamedAttributeNode("organizations")})
 public class Region extends BaseEntity {
     private static final long serialVersionUID = -8301655546503914165L;
 
@@ -93,4 +95,11 @@ public class Region extends BaseEntity {
         this.organizations = organizations;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Region region = (Region) o;
+        return Objects.equals(getId(), region.getId());
+    }
 }

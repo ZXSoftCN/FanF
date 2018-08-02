@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -82,5 +83,10 @@ public abstract class BaseEntity implements Serializable {
 
     public void setLastUpdater(String lastUpdater) {
         this.lastUpdater = lastUpdater;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

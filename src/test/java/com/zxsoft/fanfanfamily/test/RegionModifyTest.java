@@ -8,6 +8,7 @@ import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
 import com.zxsoft.fanfanfamily.mort.repository.*;
 import com.zxsoft.fanfanfamily.base.repository.OrganizationDao;
 import com.zxsoft.fanfanfamily.base.repository.OrganizationTypeDao;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -86,10 +87,7 @@ public class RegionModifyTest extends BaseTest {
     public void deleteBank() {
         Optional<Bank> itemDel = bankDao.findFirstByCodeIgnoreCase("B002");
 
-        String strQuery = "select e from Region e left join fetch e.banks where e.id = :id";
-        List<Region> lstRegionCustom = entityManager.createQuery(strQuery)
-                                        .setParameter("id",itemDel.get().getId())
-                                        .getResultList();
+
         
         List<Region> lstRegion = regionDao.queryAllByBanksIn(itemDel.isPresent() ? itemDel.get(): null);
 //        List<Region> lstRegionJoin = entityManager.createQuery("select r from Region r left join fetch r.banks b " +
@@ -114,6 +112,28 @@ public class RegionModifyTest extends BaseTest {
 //        regionDao.saveAll(lstRegion);
 //        regionDao.flush();
         bankDao.delete(itemDel.orElse(null));
+    }
+
+    @Test
+    public void removeBankRelationByRegion() {
+        Optional<Bank> itemDel = bankDao.queryFirstByCode("B002");
+
+        if (itemDel.isPresent()) {
+//            String strQuery = "select e from Region e left join fetch e.banks b where b.id = :id";
+//            List<Region> lstRegionCustom = entityManager.createQuery(strQuery)
+//                    .setParameter("id",itemDel.get().getId())
+//                    .getResultList();
+            List<Region> lstRegion = regionDao.findRegionsByBanksIn(itemDel.get());
+
+            for (Region item : lstRegion) {
+                Region itemEager = regionDao.queryFirstByCode(item.getCode()).get();
+                itemEager.getBanks().remove( itemDel.get() );
+                itemDel.get().getRegions().remove( itemEager );
+
+                regionDao.save(itemEager);
+            }
+//            regionDao.saveAll(lstRegion);
+        }
     }
 
     @Test

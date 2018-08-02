@@ -3,13 +3,17 @@ package com.zxsoft.fanfanfamily.base.domain.mort;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zxsoft.fanfanfamily.base.domain.BaseEntity;
 import com.zxsoft.fanfanfamily.base.domain.Region;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "sys_bank")
+@NamedEntityGraph(name = "Bank.lazy",
+        attributeNodes = {@NamedAttributeNode("regions")})
 public class Bank extends BaseEntity {
 
     private static final long serialVersionUID = -2727918037387072944L;
@@ -30,7 +34,7 @@ public class Bank extends BaseEntity {
     //所属城市或地区
     private Set<Region> regions = new HashSet<>();
 
-    @Column(name = "code")
+    @Column(name = "code", unique = true, nullable = false)
     public String getCode() {
         return code;
     }
@@ -108,5 +112,13 @@ public class Bank extends BaseEntity {
     @Deprecated
     private void addRegions(Set<Region> regions) {
         this.regions.addAll(regions);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bank bank = (Bank) o;
+        return Objects.equals(getId(), bank.getId());
     }
 }

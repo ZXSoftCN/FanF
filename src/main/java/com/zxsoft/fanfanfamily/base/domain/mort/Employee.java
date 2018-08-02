@@ -15,6 +15,7 @@ public class Employee extends BaseEntity {
     private String aliasName;
     private Organization organization;
     private String introduction;
+    private String iconUrl;
 
     @Column(name = "code",unique = true,nullable = false,columnDefinition = "varchar(36)")
     public String getCode() {
@@ -61,5 +62,14 @@ public class Employee extends BaseEntity {
 
     public void setIntroduction(String introduction) {
         this.introduction = introduction;
+    }
+
+    @Column(name = "icnoUrl")
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
     }
 }

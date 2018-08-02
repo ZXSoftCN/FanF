@@ -4,7 +4,6 @@ import com.zxsoft.fanfanfamily.config.AppCrossOriginProperties;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
@@ -26,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @CrossOrigin(origins = "http://localhost:8080")
-public class RegionControllerTest extends BaseTest {
+public class BankControllerTest extends BaseTest {
 
 
     @Autowired
@@ -37,14 +36,14 @@ public class RegionControllerTest extends BaseTest {
 
     @Test
     @Rollback(value = true)
-    public void addRegion() {
+    public void addBank() {
         //测试属性组
         List<String> lstCrossOrigin = crossOriginProperties.getLocations();
         List<String> lstOrgCC = appPropertiesConfig.getCrossOriginLocations();
 
         String requestBody = "{\"code\":\"006\",\"name\":\"郑州\"}";
         RequestBuilder request;
-        request = post("/api/region/add")
+        request = post("/api/bank/add")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody);
@@ -60,55 +59,17 @@ public class RegionControllerTest extends BaseTest {
 
     @Test
 //    @Rollback(value = true)
-    public void addRegionResource() throws IOException {
-        //测试属性组
-        String fileLocal="E:\\添加微信号.docx";
-        Path uploadFile = Paths.get(fileLocal);
-//        Files.createTempFile(String.format("%s-1",uploadFile.getFileName()),null,null);
-        FileSystemResource resource = new FileSystemResource(new File(fileLocal));
-        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("file", resource);
-
-//        HttpEntity<MultiValueMap<String, Object>> httpEntity httpEntity= new HttpEntity<MultiValueMap<String, Object>>(param);
-//        ResponseEntity<String> responseEntity = rest.exchange(url, HttpMethod.POST, httpEntity, String.class);
-//        System.out.println(responseEntity.getBody());
-
-        String requestBody = "{\"code\":\"006\",\"name\":\"郑州\"}";
-        RequestBuilder request;
-
-        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
-        multiParams.add("regionId","402881e564c015100164c0154cbe0000");
-        multiParams.add("postfix","docx");//附件后缀
-
-        request = post("/api/regionresource/addByBytes")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .content(Files.readAllBytes(uploadFile))
-                .params(multiParams);
-//                .requestAttr("file",resource )
-
-        try {
-            mockMvc.perform(request)
-                    .andExpect(status().isOk())
-                    .andDo(print());
-        }catch (Exception ex){
-            System.out.print(ex.getMessage());
-        }
-    }
-
-    @Test
-//    @Rollback(value = true)
-    public void uploadRegionAvatar() throws IOException {
+    public void uploadBankAvatar() throws IOException {
         //测试属性组
         String fileLocal="E:\\MyProject\\DGYH\\FanF-Family\\resource\\icon\\VIP.png";
         Path uploadFile = Paths.get(fileLocal);
         RequestBuilder request;
 
         MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
-        multiParams.add("regionId","14dec53b-76fe-44b1-a89f-6d1bed16f341");
+        multiParams.add("bankId","4ec5f548-a55c-4a92-b4cb-550ba07802b9");
         multiParams.add("postfix","png");//附件后缀
 
-        request = post("/api/region/updateAvatar")
+        request = post("/api/bank/updateAvatar")
 //                .accept(MediaType.MULTIPART_FORM_DATA)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .content(Files.readAllBytes(uploadFile))
@@ -125,16 +86,16 @@ public class RegionControllerTest extends BaseTest {
 
     @Test
 //    @Rollback(value = true)
-    public void loadRegionAvatar() throws IOException {
+    public void loadBankAvatar() throws IOException {
         RequestBuilder request;
 
         MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
-        multiParams.add("regionId","14dec53b-76fe-44b1-a89f-6d1bed16f341");
+        multiParams.add("bankId","4ec5f548-a55c-4a92-b4cb-550ba07802b9");
         multiParams.add("width","120");
         multiParams.add("height","120");
         multiParams.add("scaling","0.5");
 
-        request = post("/api/region/loadAvatar")
+        request = post("/api/bank/loadAvatar")
 //                .accept(MediaType.MULTIPART_FORM_DATA)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(multiParams);
@@ -148,46 +109,13 @@ public class RegionControllerTest extends BaseTest {
             System.out.print(ex.getMessage());
         }
     }
-
+    
     @Test
-    @Rollback(value = true)
-    public void modifyRegionResource() throws IOException {
-        //测试属性组
-        String fileLocal="E:\\添加微信号.docx";
-        Path uploadFile = Paths.get(fileLocal);
-//        Files.createTempFile(String.format("%s-1",uploadFile.getFileName()),null,null);
-        FileSystemResource resource = new FileSystemResource(new File(fileLocal));
-        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("file", resource);
-
+    public void queryBank() {
         RequestBuilder request;
 
-        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
-        multiParams.add("regionResourceId","402883e464d045c90164d04601410000");
-        multiParams.add("postfix","docx");//附件后缀
-
-        request = post("/api/regionresource/modifyByBytes")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .content(Files.readAllBytes(uploadFile))
-                .params(multiParams);
-//                .requestAttr("file",resource )
-
-        try {
-            mockMvc.perform(request)
-                    .andExpect(status().isOk())
-                    .andDo(print());
-        }catch (Exception ex){
-            System.out.print(ex.getMessage());
-        }
-    }
-
-    @Test
-    public void queryRegion() {
-        RequestBuilder request;
-
-        String regionId = "402883e464d4013b0164d4015a510000";// "402881e564c015100164c0154cbe0000";
-        request = get(String.format("/api/region/get/%s",regionId))
+        String bankId = "402883e464d4013b0164d4015a510000";// "402881e564c015100164c0154cbe0000";
+        request = get(String.format("/api/bank/get/%s",bankId))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN);
 
@@ -201,14 +129,14 @@ public class RegionControllerTest extends BaseTest {
     }
 
     @Test
-    public void queryRegionByPage() {
+    public void queryBankByPage() {
         RequestBuilder request;
-        String regionId = "402881e564c015100164c0154cbe0000";
+        String bankId = "402881e564c015100164c0154cbe0000";
         MultiValueMap<String,String> mapValue = new LinkedMultiValueMap<>();
         mapValue.add("page","0");
         mapValue.add("size","3");
         mapValue.add("sort","code");
-        request = get("/api/region/get")
+        request = get("/api/bank/get")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);

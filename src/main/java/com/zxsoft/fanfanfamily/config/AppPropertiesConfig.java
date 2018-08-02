@@ -69,6 +69,8 @@ public class AppPropertiesConfig {
     private String appDateFormat;
     @Value("${AppShortDateFormat}")
     private String appShortDateFormat;
+    @Value("${defaultAvatar}")
+    private String defaultAvatar;
 
     @Autowired
     private AppCrossOriginProperties appCrossOriginProperties;
@@ -170,5 +172,9 @@ public class AppPropertiesConfig {
 
     public String getAppShortDateFormat() {
         return appShortDateFormat;
+    }
+
+    public String getDefaultAvatar() {
+        return defaultAvatar;
     }
 }
