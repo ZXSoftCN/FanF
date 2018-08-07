@@ -1,4 +1,4 @@
-package com.zxsoft.fanfanfamily.mort.repository;
+package com.zxsoft.fanfanfamily.base.repository;
 
 import com.zxsoft.fanfanfamily.base.domain.Role;
 import org.springframework.data.domain.Page;

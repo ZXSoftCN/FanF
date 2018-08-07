@@ -1,4 +1,4 @@
-package com.zxsoft.fanfanfamily.mort.service;
+package com.zxsoft.fanfanfamily.base.service;
 
 
 import com.zxsoft.fanfanfamily.base.domain.Permission;

@@ -3,7 +3,7 @@ package com.zxsoft.fanfanfamily.config;
 import com.zxsoft.fanfanfamily.base.domain.Permission;
 import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
-import com.zxsoft.fanfanfamily.mort.service.UserInfoService;
+import com.zxsoft.fanfanfamily.base.service.UserInfoService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

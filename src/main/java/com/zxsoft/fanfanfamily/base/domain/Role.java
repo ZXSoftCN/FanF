@@ -8,14 +8,24 @@ import java.util.List;
 
 @Entity
 @Table(name = "sys_Role")
-public class Role implements Serializable{
+public class Role extends BaseEntity{
 
     private static final long serialVersionUID = -8037045542580771196L;
-    @Id
-    @GeneratedValue(generator = "uuid2" )   //指定生成器名称
-    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator" )  //生成器名称，uuid生成类
-    @Column(name = "id",nullable = false,length = 36)
-    private String id; // 编号
+
+//    @Id
+//    @GeneratedValue(generator = "uuid2" )   //指定生成器名称
+//    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator" )  //生成器名称，uuid生成类
+//    @Column(name = "id",nullable = false,length = 36)
+//    private String id; // 编号
+//
+//    public String getId() {
+//        return id;
+//    }
+//
+//    public void setId(String id) {
+//        this.id = id;
+//    }
+
     @Column(name = "roleName",unique =true)
     private String roleName; // 角色标识程序中判断使用,如"admin",这个是唯一的:
     @Column(name = "description",columnDefinition="varchar(500) default ''")
@@ -35,13 +45,6 @@ public class Role implements Serializable{
             inverseJoinColumns={@JoinColumn(name="userInfoId",referencedColumnName = "id")})
     private List<UserInfo> userInfos;// 一个角色对应多个用户
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getRoleName() {
         return roleName;

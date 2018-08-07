@@ -8,12 +8,21 @@ import java.util.List;
 
 @Entity
 @Table(name = "sys_Permission")
-public class Permission implements Serializable {
+public class Permission extends BaseEntity {
     private static final long serialVersionUID = -1603670512627094071L;
-    @Id
-    @GeneratedValue(generator = "uuid2" )   //指定生成器名称
-    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator" )  //生成器名称，uuid生成类
-    @Column(name = "id",nullable = false,length = 36)
+
+//    @Id
+//    @GeneratedValue(generator = "uuid2" )   //指定生成器名称
+//    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator" )  //生成器名称，uuid生成类
+//    @Column(name = "id",nullable = false,length = 36)
+//    public String getId() {
+//        return id;
+//    }
+//
+//    public void setId(String id) {
+//        this.id = id;
+//    }
+
     private String id;//主键.
     @Column(name = "name",unique =true)
     private String name;//名称.
@@ -34,13 +43,7 @@ public class Permission implements Serializable {
             inverseJoinColumns={@JoinColumn(name="roleId",referencedColumnName = "id")})
     private List<Role> roles;
 
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

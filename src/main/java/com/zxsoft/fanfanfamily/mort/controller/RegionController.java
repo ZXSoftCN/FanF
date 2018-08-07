@@ -1,7 +1,9 @@
 package com.zxsoft.fanfanfamily.mort.controller;
 
+import com.zxsoft.fanfanfamily.base.controller.BaseRestControllerImpl;
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
+import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.RegionService;
 import com.zxsoft.fanfanfamily.base.sys.PageableBody;
 import org.hibernate.collection.internal.PersistentSet;
@@ -19,29 +21,20 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/api")
-public class RegionController {
+@RequestMapping(value = "/api/region")
+public class RegionController extends BaseRestControllerImpl<Region> {
 
     @Autowired
     private RegionService regionService;
 
-    @PostMapping(value = "/region/add")
-    public Region addRegion(@RequestBody Region region){
-        return regionService.save(region);
+    @Override
+    public BaseService<Region> getBaseService() {
+        return regionService;
     }
 
-    @GetMapping("/region/get/{regionId}")
-    public ResponseEntity<Region> queryRegion(@PathVariable(required = false) Region regionId) {
-
-        ResponseEntity<Region> itemR;
-        Optional<Region> rltRegion = regionService.getById(regionId.getId());
-
-        if (rltRegion.isPresent()) {
-            itemR = ResponseEntity.ok(rltRegion.get());
-        }else{
-            itemR = ResponseEntity.status(200).body(null);
-        }
-        return itemR;
+    @Override
+    public Class<Region> getEntityType() {
+        return Region.class;
     }
 
     @GetMapping("/region/getbycode/{code}")
@@ -56,61 +49,6 @@ public class RegionController {
             itemR = ResponseEntity.ok(rltRegion2.get());
         }else{
             itemR = ResponseEntity.status(200).body(null);
-        }
-        return itemR;
-    }
-
-    @PageableBody
-    @GetMapping("/region/get")
-    public ResponseEntity<Page<Region>> queryRegionList(@RequestParam(value = "page",required = false,defaultValue = "0") int page,
-                                                        @RequestParam(value = "size",required = false,defaultValue = "2") int size,
-                                                        @RequestParam(value = "sort",required = false,defaultValue = "code") String sort) {
-        ResponseEntity<Page<Region>> itemR;
-        Sort itemSort = Sort.by(Sort.Direction.ASC,sort);
-        Pageable pageable = PageRequest.of(page,size, itemSort);
-//        Page<Region> pcollRegion = regionService.findAll(pageable);
-        Page<Region> pcollRegion2 = regionService.queryRegionsByIdIsNotNull(pageable);
-        if (pcollRegion2.getSize() > 0) {
-            itemR = ResponseEntity.ok(pcollRegion2);
-        }else{
-            itemR = ResponseEntity.status(200).body(null);
-        }
-        return itemR;
-    }
-
-    @PostMapping(value = "/region/updateAvatar",consumes = "multipart/form-data")
-    public ResponseEntity<String> uploadAvatar(@RequestParam(value = "regionId",required = true) Region region,
-                                                 @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
-                                                 @RequestParam(value = "postfix",required = true) String postfix,
-                                                 @RequestBody(required = true) byte[] bytes){
-        ResponseEntity<String> itemR ;
-        Path item =  regionService.uploadAvatarExtend(region,fileName,postfix,bytes);
-
-        if (item != null) {
-            itemR = ResponseEntity.ok(item.toString());
-        }else{
-            itemR = ResponseEntity.status(200).body("");
-        }
-        return itemR;
-    }
-
-    @PostMapping(value = "/region/loadAvatar")
-    public ResponseEntity<String> loadAvatar(@RequestParam(value = "regionId",required = true) Region region,
-                                                @RequestParam(value = "width",required = false,defaultValue = "0") int width,
-                                                @RequestParam(value = "height",required = false,defaultValue = "0") int height,
-                                                @RequestParam(value = "scaling",required = false,defaultValue = "1") double scaling){
-        ResponseEntity<String> itemR ;
-        Path item;
-        if (width == 0 && height == 0) {
-            item = regionService.loadAvatar(region);
-        }else{
-            item = regionService.loadAvatar(region,width,height,scaling);
-        }
-
-        if (item != null) {
-            itemR = ResponseEntity.ok(item.toString());
-        }else{
-            itemR = ResponseEntity.status(200).body("");
         }
         return itemR;
     }

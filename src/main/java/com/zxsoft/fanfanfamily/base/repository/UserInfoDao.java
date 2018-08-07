@@ -1,4 +1,4 @@
-package com.zxsoft.fanfanfamily.mort.repository;
+package com.zxsoft.fanfanfamily.base.repository;
 
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
