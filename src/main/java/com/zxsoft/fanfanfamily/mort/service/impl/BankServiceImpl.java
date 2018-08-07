@@ -1,6 +1,7 @@
 package com.zxsoft.fanfanfamily.mort.service.impl;
 
 import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
+import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.impl.BaseServiceImpl;
 import com.zxsoft.fanfanfamily.mort.repository.BankDao;
 import com.zxsoft.fanfanfamily.mort.service.BankService;
@@ -66,15 +67,9 @@ public class BankServiceImpl extends BaseServiceImpl<Bank> implements BankServic
     }
 
     @Override
-    public Path loadAvatar(Bank bank) {
+    public Path loadAvatar(Bank bank, AvatorLoadFactor factor) {
         String strUrl = bank.getIconUrl();
-        return loadAvatarInner(strUrl);
-    }
-
-    @Override
-    public Path loadAvatar(Bank bank, int width, int height, double scaling) {
-        String strUrl = bank.getIconUrl();
-        return loadAvatarInner(strUrl,width,height,scaling);
+        return loadAvatarInner(strUrl,factor);
     }
 
     @Override

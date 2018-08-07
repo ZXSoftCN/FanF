@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.zxsoft.fanfanfamily.base.domain.BaseEntity;
+import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
+import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.sys.PageableBody;
 import org.slf4j.Logger;
@@ -15,7 +17,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,5 +145,44 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
         }
 
         return ResponseEntity.ok(isDel);
+    }
+
+
+
+    @Override
+    @PostMapping(value = "/updateAvatar",consumes = "multipart/form-data")
+    public ResponseEntity<Path> uploadAvatar(@RequestParam(value = "id",required = true) String id,
+                             @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
+                             @RequestParam(value = "postfix",required = true) String postfix,
+                             @RequestBody(required = true) byte[] bytes) {
+        Path path =null;
+        Optional<T> item = getBaseService().getById(id);
+        if (item.isPresent()) {
+            path = getBaseService().uploadAvatarExtend(item.get(),fileName,postfix,bytes);
+            if (path != null) {
+                return ResponseEntity.ok().body(path);
+            }
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    @Override
+    @PostMapping(value = "/loadAvatar/{id}")
+    public ResponseEntity<Path> loadAvatar(@PathVariable(value = "id") String id,
+                                             AvatorLoadFactor factor) {
+        Path path = null;
+        Optional<T> item = getBaseService().getById(id);
+        if (item.isPresent()) {
+            if (factor != null && factor.getWidth() != null && factor.getHeight() != null) {
+                path = getBaseService().loadAvatar(item.get(),factor);
+            } else {
+                path = getBaseService().loadAvatar(item.get());
+            }
+
+            if (path != null) {
+                return ResponseEntity.ok().body(path);
+            }
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }

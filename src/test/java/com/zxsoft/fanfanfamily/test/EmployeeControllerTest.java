@@ -10,6 +10,10 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -166,6 +170,61 @@ public class EmployeeControllerTest extends BaseTest {
                 .param("page","0")
                 .param("sort","code,desc");
          */
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+//    @Rollback(value = true)
+    public void uploadEmployeeAvatar() throws IOException {
+        //测试属性组
+        String fileLocal="E:\\MyProject\\DGYH\\FanF-Family\\resource\\icon\\VIP.png";
+        Path uploadFile = Paths.get(fileLocal);
+        RequestBuilder request;
+
+        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
+        multiParams.add("id","2fbe860a-885e-4f63-9c21-9c04bf32ee85");
+        multiParams.add("fileName","VIP");
+        multiParams.add("postfix","png");//附件后缀
+
+        request = post("/api/employee/updateAvatar")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .content(Files.readAllBytes(uploadFile))
+                .params(multiParams);
+//                .requestAttr("file",resource )
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+//    @Rollback(value = true)
+    public void loadEmployeeAvatar() throws IOException {
+        RequestBuilder request;
+
+        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
+        String id = "24f51bb5-b539-48b4-8c7a-69f6d1742926";
+        multiParams.add("width","120");
+        multiParams.add("height","120");
+        multiParams.add("scaling","0.5");
+
+        request = post(String.format("/api/employee/loadAvatar/%s",id))
+//                .accept(MediaType.MULTIPART_FORM_DATA)
+                .contentType(MediaType.TEXT_PLAIN);
+//                .params(multiParams);
+//                .requestAttr("file",resource )
 
         try {
             mockMvc.perform(request)

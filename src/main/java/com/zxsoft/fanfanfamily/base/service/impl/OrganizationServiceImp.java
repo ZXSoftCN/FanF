@@ -1,6 +1,7 @@
 package com.zxsoft.fanfanfamily.base.service.impl;
 
 import com.zxsoft.fanfanfamily.base.domain.Organization;
+import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.repository.OrganizationDao;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.OrganizationService;
@@ -31,12 +32,7 @@ public class OrganizationServiceImp extends BaseServiceImpl<Organization> implem
     }
 
     @Override
-    public Path loadAvatar(Organization organization) {
-        return null;
-    }
-
-    @Override
-    public Path loadAvatar(Organization organization, int width, int height, double scaling) {
+    public Path loadAvatar(Organization organization, AvatorLoadFactor factor) {
         return null;
     }
 

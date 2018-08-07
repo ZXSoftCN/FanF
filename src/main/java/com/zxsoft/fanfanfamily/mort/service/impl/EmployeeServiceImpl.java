@@ -3,6 +3,7 @@ package com.zxsoft.fanfanfamily.mort.service.impl;
 import com.zxsoft.fanfanfamily.base.domain.Organization;
 import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
 import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
+import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.repository.OrganizationDao;
 import com.zxsoft.fanfanfamily.base.service.impl.BaseServiceImpl;
 import com.zxsoft.fanfanfamily.mort.repository.EmployeeDao;
@@ -32,12 +33,13 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
     private void modifyIcon(Employee employee, Path path) {
         try {
             String strOld = employee.getIconUrl();
-            if (employee.getIconUrl().startsWith("file:/")) {
-                strOld = employee.getIconUrl().replaceFirst("file:/", "");
+            if (strOld != null && !strOld.isEmpty()) {
+                if (employee.getIconUrl().startsWith("file:/")) {
+                    strOld = employee.getIconUrl().replaceFirst("file:/", "");
+                }
+                Path pathOld = Paths.get(strOld);
+                Files.deleteIfExists(pathOld);
             }
-            Path pathOld = Paths.get(strOld);
-            Files.deleteIfExists(pathOld);
-
             employee.setIconUrl(path.toString());
             employeeDao.save(employee);
         }catch (IOException ex){
@@ -62,19 +64,20 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
 
     @Override
     public Path uploadAvatarExtend(Employee employee, String fileName, String postfix, byte[] bytes) {
-        return null;
+        Path itemNew = uploadAvatar(fileName,postfix,bytes);
+        if (itemNew == null) {
+            return null;
+        }
+        //将Path路径保存至Region的IconUrl属性
+        modifyIcon(employee,itemNew);
+
+        return itemNew;
     }
 
     @Override
-    public Path loadAvatar(Employee employee) {
+    public Path loadAvatar(Employee employee, AvatorLoadFactor factor) {
         String strUrl = employee.getIconUrl();
-        return loadAvatarInner(strUrl);
-    }
-
-    @Override
-    public Path loadAvatar(Employee employee, int width, int height, double scaling) {
-        String strUrl = employee.getIconUrl();
-        return loadAvatarInner(strUrl,width,height,scaling);
+        return loadAvatarInner(strUrl,factor);
     }
 
     @Override

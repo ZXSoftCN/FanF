@@ -2,6 +2,7 @@ package com.zxsoft.fanfanfamily.base.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.StorageException;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
@@ -226,9 +227,6 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public abstract Path uploadAvatarExtend(T t, String fileName, String postfix, byte[] bytes) ;
-
-    @Override
     public Resource downloadResource(String url) {
         if (!StringUtils.isEmpty(url) ) {
             Path path = Paths.get(url);
@@ -243,12 +241,23 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public abstract Path loadAvatar(T t);
+    public Path loadAvatar(T t) {
+        return loadAvatar(t,null);
+    }
 
     @Override
-    public abstract Path loadAvatar(T t, int width, int height, double scaling) ;
+    public Path loadAvatar(T t, int width, int height, double scaling){
+        AvatorLoadFactor factor = new AvatorLoadFactor();
+        factor.setWidth(width);
+        factor.setHeight(height);
+        factor.setScaling(scaling);
+        return loadAvatar(t,factor);
+    }
 
-    protected Path loadAvatarInner(String url) {
+    @Override
+    public abstract Path loadAvatar(T t, AvatorLoadFactor factor) ;
+
+    private Path loadAvatarInner(String url) {
 
         if (!StringUtils.isEmpty(url) ) {
             Path path = Paths.get(url);
@@ -262,8 +271,10 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
         return getDefaultAvatar();
     }
 
-    protected Path loadAvatarInner(String url,int width, int height, double scaling) {
-
+    protected Path loadAvatarInner(String url,AvatorLoadFactor factor) {
+        if (factor == null) {
+            return loadAvatarInner(url);
+        }
         if (!StringUtils.isEmpty(url) ) {
             Path path = Paths.get(url);
             if (Files.exists(path)) {
@@ -278,7 +289,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
                         upperPath = Files.createDirectories(upperPath);
                     }
                     String newFileName = String.format("%s_%d_%d.%s",
-                            StringUtils.substringBefore(fileName,"."),width,height,
+                            StringUtils.substringBefore(fileName,"."),factor.getWidth(),factor.getHeight(),
                             StringUtils.substringAfterLast(fileName,"."));
                     Path newItem = upperPath.resolve(newFileName);
                     File newFile;
@@ -290,8 +301,8 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
                         }
                         newFile = Files.createFile(newItem).toFile();
                         Thumbnails.of(path.toUri().toURL())
-                                .size(width, height)
-                                .outputQuality(scaling)
+                                .size(factor.getWidth(),factor.getHeight())
+                                .outputQuality(factor.getScaling())
                                 .useOriginalFormat()
                                 .toFile(newFile);
                     }

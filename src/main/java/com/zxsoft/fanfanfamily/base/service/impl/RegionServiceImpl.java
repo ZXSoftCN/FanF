@@ -2,6 +2,7 @@ package com.zxsoft.fanfanfamily.base.service.impl;
 
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
+import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.RegionService;
 import com.zxsoft.fanfanfamily.mort.repository.RegionDao;
 import com.zxsoft.fanfanfamily.mort.repository.RegionRescourceDao;
@@ -305,15 +306,9 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     }
 
     @Override
-    public Path loadAvatar(Region region) {
+    public Path loadAvatar(Region region, AvatorLoadFactor factor) {
         String strUrl = region.getLogoUrl();
-        return loadAvatarInner(strUrl);
-    }
-
-    @Override
-    public Path loadAvatar(Region region, int width, int height, double scaling) {
-        String strUrl = region.getLogoUrl();
-        return loadAvatarInner(strUrl,width,height,scaling);
+        return loadAvatarInner(strUrl,factor);
     }
 
     @Override
