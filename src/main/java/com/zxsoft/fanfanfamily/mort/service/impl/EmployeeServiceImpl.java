@@ -3,25 +3,31 @@ package com.zxsoft.fanfanfamily.mort.service.impl;
 import com.zxsoft.fanfanfamily.base.domain.Organization;
 import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
 import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
+import com.zxsoft.fanfanfamily.base.repository.OrganizationDao;
 import com.zxsoft.fanfanfamily.base.service.impl.BaseServiceImpl;
 import com.zxsoft.fanfanfamily.mort.repository.EmployeeDao;
 import com.zxsoft.fanfanfamily.mort.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements EmployeeService {
     private final String resPathName = "employee";
     @Autowired
     private EmployeeDao employeeDao;
-    
+    @Autowired
+    private OrganizationDao organizationDao;
+
+
     //<editor-fold desc="私有方法">
     private void modifyIcon(Employee employee, Path path) {
         try {
@@ -81,5 +87,47 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
         modifyIcon(employee,itemNew);
 
         return itemNew;
+    }
+
+    @Override
+    public Employee add(Employee employee) {
+        if (employee == null) {
+            return null;
+        }
+        if (employee.getAliasName() == null || employee.getAliasName().isEmpty()) {
+            employee.setAliasName(employee.getName());
+        }
+        if (employee.getOutterOrganizationId() != null && !employee.getOutterOrganizationId().isEmpty()) {
+            Optional<Organization> itemOrg = organizationDao.findById(employee.getOutterOrganizationId());
+            if (itemOrg.isPresent()) {
+                employee.setOrganization(itemOrg.get());
+            }
+        }
+
+        return super.add(employee);
+    }
+
+    @Override
+    public Employee modify(Employee employee) {
+
+        if (employee == null) {
+            return null;
+        }
+        Optional<Employee> itemExists = employeeDao.findById(employee.getId());
+        //若不存在，则转入新增
+        if (!itemExists.isPresent()) {
+            add(employee);
+        }
+        if (employee.getAliasName() == null || employee.getAliasName().isEmpty()) {
+            employee.setAliasName(employee.getName());
+        }
+        if (employee.getOutterOrganizationId() != null && !employee.getOutterOrganizationId().isEmpty()) {
+            Optional<Organization> itemOrg = organizationDao.findById(employee.getOutterOrganizationId());
+            if (itemOrg.isPresent()) {
+                employee.setOrganization(itemOrg.get());
+            }
+        }
+
+        return super.modify(employee);
     }
 }

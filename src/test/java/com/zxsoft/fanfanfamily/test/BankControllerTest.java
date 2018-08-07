@@ -1,10 +1,15 @@
 package com.zxsoft.fanfanfamily.test;
 
+import com.zxsoft.fanfanfamily.base.domain.Region;
+import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
 import com.zxsoft.fanfanfamily.config.AppCrossOriginProperties;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
+import com.zxsoft.fanfanfamily.mort.repository.BankDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -18,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,6 +38,8 @@ public class BankControllerTest extends BaseTest {
     private AppCrossOriginProperties crossOriginProperties;
     @Autowired
     private AppPropertiesConfig appPropertiesConfig;
+    @Autowired
+    private BankDao bankDao;
 
 
     @Test
@@ -109,12 +117,21 @@ public class BankControllerTest extends BaseTest {
             System.out.print(ex.getMessage());
         }
     }
+
+    @Test
+    public void queryBankDao(){
+        Pageable page = PageRequest.of(0,2);
+        Optional<Bank> item = bankDao.findById("67117d84-4e15-4ac7-b704-caeed79652a9");
+        if (item.isPresent()) {
+            System.out.println(item.get().getCode());
+        }
+    }
     
     @Test
     public void queryBank() {
         RequestBuilder request;
 
-        String bankId = "402883e464d4013b0164d4015a510000";// "402881e564c015100164c0154cbe0000";
+        String bankId = "67117d84-4e15-4ac7-b704-caeed79652a9";// "402881e564c015100164c0154cbe0000";
         request = get(String.format("/api/bank/get/%s",bankId))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN);

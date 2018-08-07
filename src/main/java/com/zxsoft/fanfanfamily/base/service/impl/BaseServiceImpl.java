@@ -1,5 +1,7 @@
 package com.zxsoft.fanfanfamily.base.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.StorageException;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +29,7 @@ import java.nio.file.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public abstract class BaseServiceImpl<T> implements BaseService<T> {
 
@@ -144,15 +148,37 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public void Delete(T t) {
-        getBaseDao().delete(t);
+    @Transactional
+    public T add(T t) {
+        return getBaseDao().save(t);
     }
 
     @Override
-    public void DeleteAll(List<T> t) {
-        if (!t.isEmpty()) {
-            getBaseDao().deleteAll(t);
+    @Transactional
+    public T modify(T t) {
+        return getBaseDao().save(t);
+    }
+
+    @Override
+    public Boolean delete(String id) {
+        Boolean rlt = false;
+        Optional<T> t = getBaseDao().findById(id);
+        if (t.isPresent()) {
+            getBaseDao().delete(t.get());
+            rlt  = true;
         }
+        return rlt;
+    }
+
+    @Override
+    public Boolean deleteBatch(List<String> ids) {
+        Boolean rlt = false;
+        List<T> lst = getBaseDao().findAllById(ids);
+        if (!lst.isEmpty()) {
+            getBaseDao().deleteAll(lst);
+            rlt = true;
+        }
+        return rlt;
     }
 
     @Override

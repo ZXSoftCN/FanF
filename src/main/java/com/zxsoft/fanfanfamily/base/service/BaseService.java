@@ -22,9 +22,12 @@ public interface BaseService<T> {
     Path storeFile(MultipartFile file);
     List<T> findAll();
     Page<T> findAll(Pageable pageable);
+    T add(T t);
+    T modify(T t);
     T save(T t);
-    void Delete(T t);
-    void DeleteAll(List<T> t);
+    Boolean delete(String id);
+    Boolean deleteBatch(List<String> ids);
+
 
     Path uploadAvatar(MultipartFile file);//以MultipartFile方式上传头像、图标
     Path uploadAvatar(String fileName,String postfix,byte[] bytes);//以字节数组上传头像、图标

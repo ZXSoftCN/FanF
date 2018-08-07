@@ -3,6 +3,8 @@ package com.zxsoft.fanfanfamily.mort.controller;
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
 import com.zxsoft.fanfanfamily.base.service.RegionService;
+import com.zxsoft.fanfanfamily.base.sys.PageableBody;
+import org.hibernate.collection.internal.PersistentSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -33,7 +35,7 @@ public class RegionController {
 
         ResponseEntity<Region> itemR;
         Optional<Region> rltRegion = regionService.getById(regionId.getId());
-//        Optional<Region> rltRegion = regionService.getById(regionId);
+
         if (rltRegion.isPresent()) {
             itemR = ResponseEntity.ok(rltRegion.get());
         }else{
@@ -42,6 +44,23 @@ public class RegionController {
         return itemR;
     }
 
+    @GetMapping("/region/getbycode/{code}")
+    public ResponseEntity<Region> queryRegion(@PathVariable(required = false,name = "code") String code) {
+
+        ResponseEntity<Region> itemR;
+//        Optional<Region> rltRegion = regionService.findFirstByCode(code);//不级联查询。但后续有级联查询，会造成数据加载。
+        Optional<Region> rltRegion2 = regionService.queryFirstByCode(code);//启用当前查询会引起上一查询，进行级联查询。
+//        Optional<Region> rltRegion = regionService.getById(regionId);
+
+        if (rltRegion2.isPresent()) {
+            itemR = ResponseEntity.ok(rltRegion2.get());
+        }else{
+            itemR = ResponseEntity.status(200).body(null);
+        }
+        return itemR;
+    }
+
+    @PageableBody
     @GetMapping("/region/get")
     public ResponseEntity<Page<Region>> queryRegionList(@RequestParam(value = "page",required = false,defaultValue = "0") int page,
                                                         @RequestParam(value = "size",required = false,defaultValue = "2") int size,
@@ -49,9 +68,10 @@ public class RegionController {
         ResponseEntity<Page<Region>> itemR;
         Sort itemSort = Sort.by(Sort.Direction.ASC,sort);
         Pageable pageable = PageRequest.of(page,size, itemSort);
-        Page<Region> pcollRegion = regionService.findAll(pageable);
-        if (pcollRegion.getSize() > 0) {
-            itemR = ResponseEntity.ok(pcollRegion);
+//        Page<Region> pcollRegion = regionService.findAll(pageable);
+        Page<Region> pcollRegion2 = regionService.queryRegionsByIdIsNotNull(pageable);
+        if (pcollRegion2.getSize() > 0) {
+            itemR = ResponseEntity.ok(pcollRegion2);
         }else{
             itemR = ResponseEntity.status(200).body(null);
         }

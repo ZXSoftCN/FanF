@@ -186,8 +186,26 @@ public class RegionControllerTest extends BaseTest {
     public void queryRegion() {
         RequestBuilder request;
 
-        String regionId = "402883e464d4013b0164d4015a510000";// "402881e564c015100164c0154cbe0000";
+        String regionId = "e3a9bbec-b519-4364-9d6c-55c08cbe7e32";// "402881e564c015100164c0154cbe0000";
         request = get(String.format("/api/region/get/%s",regionId))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN);
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void queryRegionByCode() {
+        RequestBuilder request;
+
+        String code = "003";// "402881e564c015100164c0154cbe0000";
+        request = get(String.format("/api/region/getbycode/%s",code))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN);
 

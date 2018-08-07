@@ -13,11 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RegionServiceImpl extends BaseServiceImpl<Region> implements RegionService {
@@ -314,4 +316,23 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
         return loadAvatarInner(strUrl,width,height,scaling);
     }
 
+    @Override
+    public Page<Region> queryAllByIdIsNotNull(Pageable pageable) {
+        return regionDao.queryAllByIdIsNotNull(pageable);
+    }
+
+    @Override
+    public Page<Region> queryRegionsByIdIsNotNull(Pageable page) {
+        return regionDao.queryRegionsByIdIsNotNull(page);
+    }
+
+    @Override
+    public Optional<Region> queryFirstByCode(String code) {
+        return regionDao.queryFirstByCode(code);
+    }
+
+    @Override
+    public Optional<Region> findFirstByCode(String code) {
+        return regionDao.findFirstByCode(code);
+    }
 }

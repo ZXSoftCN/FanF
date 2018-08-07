@@ -61,7 +61,7 @@ public class RegionResource implements Serializable {
     @Transient
     @JSONField(serialize = true)
     public String getRegionId(){
-        return region.getId();
+        return region == null ? "" : region.getId();
     }
 
     @Column(name = "originFileName",columnDefinition = "varchar(100)")

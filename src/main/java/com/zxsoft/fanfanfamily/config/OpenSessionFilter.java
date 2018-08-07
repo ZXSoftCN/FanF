@@ -25,28 +25,28 @@ import java.io.IOException;
 //        initParams = {
 //                @WebInitParam(name="singleSession",value = "true")
 //        })
-public class OpenSessionFilter implements Filter {
-
-    private final OpenSessionInViewFilter filter;
-
-    public OpenSessionFilter(){
-        filter = new OpenSessionInViewFilter();
-        filter.setSessionFactoryBeanName("sessionFactory");//需要指定SessionFactory的BeanName
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        boolean enabled = "true".equalsIgnoreCase(filterConfig.getInitParameter("singleSession").trim());//启用
-        filter.init(filterConfig);
-    }
-
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        filter.doFilter(servletRequest,servletResponse,filterChain);
-    }
-
-    @Override
-    public void destroy() {
-        filter.destroy();
-    }
-}
+//public class OpenSessionFilter implements Filter {
+//
+//    private final OpenSessionInViewFilter filter;
+//
+//    public OpenSessionFilter(){
+//        filter = new OpenSessionInViewFilter();
+//        filter.setSessionFactoryBeanName("sessionFactory");//需要指定SessionFactory的BeanName
+//    }
+//
+//    @Override
+//    public void init(FilterConfig filterConfig) throws ServletException {
+//        boolean enabled = "true".equalsIgnoreCase(filterConfig.getInitParameter("singleSession").trim());//启用
+//        filter.init(filterConfig);
+//    }
+//
+//    @Override
+//    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+//        filter.doFilter(servletRequest,servletResponse,filterChain);
+//    }
+//
+//    @Override
+//    public void destroy() {
+//        filter.destroy();
+//    }
+//}

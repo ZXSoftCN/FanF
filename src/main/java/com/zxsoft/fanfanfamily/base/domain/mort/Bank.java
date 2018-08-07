@@ -1,5 +1,6 @@
 package com.zxsoft.fanfanfamily.base.domain.mort;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zxsoft.fanfanfamily.base.domain.BaseEntity;
 import com.zxsoft.fanfanfamily.base.domain.Region;

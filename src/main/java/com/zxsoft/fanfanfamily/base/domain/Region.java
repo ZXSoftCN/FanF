@@ -1,6 +1,10 @@
 package com.zxsoft.fanfanfamily.base.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.Feature;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
+import org.hibernate.FetchMode;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -63,6 +67,7 @@ public class Region extends BaseEntity {
         this.logoUrl = logoUrl;
     }
 
+    @JSONField(serialize = false)
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "sys_region_bank",
             joinColumns = {@JoinColumn(name = "regionId", referencedColumnName = "id")},
@@ -72,11 +77,12 @@ public class Region extends BaseEntity {
         return banks;
     }
 
+
     public void setBanks(Set<Bank> banks) {
         this.banks = banks;
     }
 
-    //    @JSONField(serialize=true)
+//    @JSONField(serialize=false)
     @OneToMany(cascade = {CascadeType.REMOVE},mappedBy = "region",fetch = FetchType.LAZY)
     public Set<RegionResource> getResources() {
         return resources;
@@ -86,10 +92,13 @@ public class Region extends BaseEntity {
         this.resources = resources;
     }
 
+
+//    @JSONField(serialize=false)
     @OneToMany(cascade = {CascadeType.REMOVE},mappedBy = "region",fetch = FetchType.LAZY)
     public Set<Organization> getOrganizations() {
         return organizations;
     }
+
 
     public void setOrganizations(Set<Organization> organizations) {
         this.organizations = organizations;

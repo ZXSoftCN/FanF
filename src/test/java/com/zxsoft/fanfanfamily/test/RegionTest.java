@@ -258,6 +258,16 @@ public class RegionTest extends BaseTest {
         }
     }
 
+    @Test
+    public void queryRegionDao(){
+        Pageable page = PageRequest.of(0,2);
+        Optional<Region> item = regionDao.findById("e3a9bbec-b519-4364-9d6c-55c08cbe7e32");
+        Optional<Region> rltRegion = regionDao.findFirstByCode("003");
+        Optional<Region> rltRegion2 = regionDao.queryFirstByCode("003");
+        if (item.isPresent()) {
+            System.out.println(item.get().getCode());
+        }
+    }
 
 
 }

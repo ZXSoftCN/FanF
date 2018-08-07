@@ -31,10 +31,12 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     List<Region> findAllByNameContaining(String nameLike);
     Page<Region> findByCodeStartingWith(String codeStart,Pageable page);
     List<Region> findAllByCodeStartingWith(String codeStart);
+
     
     //扩展
     List<Region> findRegionsByBanksIn(Bank bank);
-    
+    @EntityGraph(attributePaths = { "resources"})
+    Page<Region> queryRegionsByIdIsNotNull(Pageable page);
     @EntityGraph(attributePaths = { "resources","banks","organizations" })
     Page<Region> queryAllByIdIsNotNull(Pageable pageable);
     @EntityGraph(attributePaths = { "resources","banks","organizations" })

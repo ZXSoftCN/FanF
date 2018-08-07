@@ -47,7 +47,7 @@ public abstract class BaseEntity implements Serializable {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss" )
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_time")
+    @Column(name = "create_time",updatable = false)
     public Date getCreateTime() {
         return createTime;
     }
@@ -67,7 +67,7 @@ public abstract class BaseEntity implements Serializable {
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    @Column(name="creator")
+    @Column(name="creator",updatable = false)
     public String getCreator() {
         return creator;
     }

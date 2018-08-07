@@ -1,6 +1,7 @@
 package com.zxsoft.fanfanfamily.mort.controller;
 
 import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
+import com.zxsoft.fanfanfamily.mort.repository.BankDao;
 import com.zxsoft.fanfanfamily.mort.service.BankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,9 @@ public class BankController {
 
     @Autowired
     private BankService bankService;
+    @Autowired
+    private BankDao bankDao;
+
 
     @PostMapping(value = "/bank/add")
     public Bank addBank(@RequestBody Bank Bank){
@@ -32,7 +36,6 @@ public class BankController {
 
         ResponseEntity<Bank> itemR;
         Optional<Bank> rltBank = bankService.getById(bankId.getId());
-//        Optional<Bank> rltBank = BankService.getById(BankId);
         if (rltBank.isPresent()) {
             itemR = ResponseEntity.ok(rltBank.get());
         }else{
@@ -41,13 +44,14 @@ public class BankController {
         return itemR;
     }
 
-    @GetMapping("/Bank/get")
+    @GetMapping("/bank/get")
     public ResponseEntity<Page<Bank>> queryBankList(@RequestParam(value = "page",required = false,defaultValue = "0") int page,
                                                         @RequestParam(value = "size",required = false,defaultValue = "5") int size,
                                                         @RequestParam(value = "sort",required = false,defaultValue = "code") String sort) {
         ResponseEntity<Page<Bank>> itemR;
         Sort itemSort = Sort.by(Sort.Direction.ASC,sort);
         Pageable pageable = PageRequest.of(page,size, itemSort);
+        Page<Bank> pcollDao = bankDao.findAll(pageable);
         Page<Bank> pcollBank = bankService.findAll(pageable);
         if (pcollBank.getSize() > 0) {
             itemR = ResponseEntity.ok(pcollBank);
