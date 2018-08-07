@@ -1,6 +1,8 @@
 package com.zxsoft.fanfanfamily.mort.controller;
 
+import com.zxsoft.fanfanfamily.base.controller.BaseRestControllerImpl;
 import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
+import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.mort.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,12 +16,21 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/api")
-public class EmployeeController {
-
+@RequestMapping(value = "/api/employee")
+public class EmployeeController extends BaseRestControllerImpl<Employee> {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Override
+    public BaseService getBaseService() {
+        return employeeService;
+    }
+
+    @Override
+    public Class<Employee> getEntityType() {
+        return Employee.class;
+    }
 
     @PostMapping(value = "/employee/add")
     public Employee addEmployee(@RequestBody Employee Employee){
