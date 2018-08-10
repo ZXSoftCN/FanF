@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public interface UserInfoService {
+public interface UserInfoService  extends BaseService<UserInfo> {
 
     UserInfo addUserInfo(String userName, String name, String password) throws EmptyResultDataAccessException;
 
@@ -25,7 +25,7 @@ public interface UserInfoService {
 
     Page<Role> findAvailableRoleByUserInfo(UserInfo userInfo, Pageable pageAble);
 
-    Optional<UserInfo> findByUserName(String userName);
+    Optional<UserInfo> findByUsername(String userName);
 
     List<UserInfo> getUserInfoList(Map<String, Integer> pageParam);
 

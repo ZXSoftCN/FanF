@@ -2,10 +2,10 @@ package com.zxsoft.fanfanfamily.config.converter;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
-public class PageableData {
+public class FanfAppData<T> {
     String msg = "";
     Integer status = 1;
-    PageableInnerData data = null;
+    T data = null;
 
     public String getMsg() {
         return msg;
@@ -24,12 +24,12 @@ public class PageableData {
     }
 
     @JSONField(name = "data")
-    public PageableInnerData getData() {
+    public T getData() {
         return data;
     }
 
     @JSONField(name = "data")
-    public void setData(PageableInnerData data) {
+    public void setData(T data) {
         this.data = data;
     }
 }

@@ -1,4 +1,4 @@
-package com.zxsoft.fanfanfamily.config;
+package com.zxsoft.fanfanfamily.common;
 
 import org.springframework.context.annotation.Configuration;
 

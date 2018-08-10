@@ -10,7 +10,7 @@ public interface UserInfoDao extends JpaRepository<UserInfo,String> {
     @Override
     Optional<UserInfo> findById(String id);
 
-    Optional<UserInfo> findByUsername(String userName);
+    Optional<UserInfo> findByUserName(String userName);
 
 
 }

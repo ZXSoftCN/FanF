@@ -5,10 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.zxsoft.fanfanfamily.base.domain.BaseEntity;
-import com.zxsoft.fanfanfamily.base.domain.mort.Employee;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
+import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.base.sys.PageableBody;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -31,6 +31,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     public abstract Class<T> getEntityType();
 
     @Override
+    @FanfAppBody
     @GetMapping(value = "/get/{id}")
     public ResponseEntity<T> getById(@PathVariable(required = false,name = "id") String id) {
         Optional<T> item = getBaseService().getById(id);
@@ -43,7 +44,8 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
-    @PageableBody
+//    @PageableBody
+    @FanfAppBody
     @RequestMapping(value = "/query")
     public ResponseEntity<Page<T>> queryPage(@PageableDefault(size = 15,page = 0,sort = "id",direction = Sort.Direction.ASC)
                                                         Pageable pageable) {
@@ -53,6 +55,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @RequestMapping(value = "/queryAll")
     public ResponseEntity<List<T>> queryAll() {
         List<T> lst = getBaseService().findAll();
@@ -60,6 +63,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping(value = "/addEntity")
     public ResponseEntity<T> addEntity(@RequestBody T t) {
         T item = getBaseService().add(t);
@@ -72,6 +76,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping(value = "/add")
     public ResponseEntity<T> addEntity(@RequestBody String parsingEntity) {
         Feature[] serializerFeatures = {
@@ -91,6 +96,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping("/modifyEntity")
     public ResponseEntity<T> moidifyEntity(@RequestBody T t) {
         T item = getBaseService().modify(t);
@@ -103,6 +109,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping("/modify")
     public ResponseEntity<T> modifyEntity(@RequestBody String parsingEntity) {
         Feature[] serializerFeatures = {
@@ -121,6 +128,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping("/delete")
     public ResponseEntity<Boolean> deleteEntity(@RequestBody String jsonId) {
         Boolean isDel = false;
@@ -133,6 +141,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping("/deleteBatch")
     public ResponseEntity<Boolean> deleteBatch(@RequestBody String jsonIds) {
         Boolean isDel = false;
@@ -150,6 +159,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
 
 
     @Override
+    @FanfAppBody
     @PostMapping(value = "/updateAvatar",consumes = "multipart/form-data")
     public ResponseEntity<Path> uploadAvatar(@RequestParam(value = "id",required = true) String id,
                              @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
@@ -167,6 +177,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
     @PostMapping(value = "/loadAvatar/{id}")
     public ResponseEntity<Path> loadAvatar(@PathVariable(value = "id") String id,
                                              AvatorLoadFactor factor) {

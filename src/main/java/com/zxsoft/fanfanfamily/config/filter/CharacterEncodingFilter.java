@@ -1,4 +1,4 @@
-package com.zxsoft.fanfanfamily.config;
+package com.zxsoft.fanfanfamily.config.filter;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;

@@ -3,6 +3,7 @@ package com.zxsoft.fanfanfamily.config;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.zxsoft.fanfanfamily.config.filter.ResponseHeaderHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -67,15 +68,16 @@ public class FanfWebMvcConfig implements WebMvcConfigurer {
         List<String> lstOrgCC = appPropertiesConfig.getCrossOriginLocations();
         String[] collCross = new String[]{};
         collCross = lstOrgCC.toArray(collCross);
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedHeaders("*")
-                .allowedMethods("POST","GET")
+                .allowedMethods("GET", "HEAD", "POST","PUT", "DELETE", "OPTIONS")
                 .allowedOrigins(collCross);
     }
 
     @Bean
     public HttpMessageConverter CustomFastJsonConverter(){
-        FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();//2
+        //修改FastJsonHttpMessageConverter,扩展加入了Header
+        ResponseHeaderHandler fastConverter = new ResponseHeaderHandler();//2
 
         List<MediaType> supportedMediaTypes = new ArrayList<MediaType>();
 

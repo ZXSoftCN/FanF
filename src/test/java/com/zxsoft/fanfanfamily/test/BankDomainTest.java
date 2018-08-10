@@ -4,7 +4,7 @@ import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.mort.Bank;
 import com.zxsoft.fanfanfamily.base.repository.OrganizationDao;
 import com.zxsoft.fanfanfamily.base.repository.OrganizationTypeDao;
-import com.zxsoft.fanfanfamily.config.EntityManagerUtil;
+import com.zxsoft.fanfanfamily.common.EntityManagerUtil;
 import com.zxsoft.fanfanfamily.mort.repository.BankDao;
 import com.zxsoft.fanfanfamily.mort.repository.RegionDao;
 import org.junit.Test;

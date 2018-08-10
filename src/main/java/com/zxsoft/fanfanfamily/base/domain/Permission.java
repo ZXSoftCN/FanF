@@ -4,7 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "sys_Permission")
@@ -24,27 +24,25 @@ public class Permission extends BaseEntity {
 //    }
 
     private String id;//主键.
-    @Column(name = "name",unique =true)
+
     private String name;//名称.
-    @Column(name = "resourceType",columnDefinition="varchar(255) default ''")
+
     private String resourceType;//资源类型，[menu|button]
-    @Column(name = "url",columnDefinition="varchar(255) default ''")
+
     private String url;//资源路径.
-    @Column(name = "permission",columnDefinition="varchar(255) default ''")
+
     private String permission; //权限字符串,menu例子：role:*，button例子：role:create,role:update,role:delete,role:view
-    @Column(name = "parentId",columnDefinition="varchar(255) default ''")
+
     private String parentId; //父编号
-    @Column(name = "parentIds",columnDefinition="varchar(500) default ''")
+
     private String parentIds; //父编号列表
-    @Column(name = "isEnable",columnDefinition="bit default 1")
+
     private Boolean isEnable = Boolean.FALSE;
-    @ManyToMany
-    @JoinTable(name="sys_RolePermission",joinColumns={@JoinColumn(name="permissionId",referencedColumnName = "id")},
-            inverseJoinColumns={@JoinColumn(name="roleId",referencedColumnName = "id")})
-    private List<Role> roles;
+
+    private Set<Role> roles;
 
 
-
+    @Column(name = "name",unique =true)
     public String getName() {
         return name;
     }
@@ -53,6 +51,7 @@ public class Permission extends BaseEntity {
         this.name = name;
     }
 
+    @Column(name = "resourceType",columnDefinition="varchar(255) default ''")
     public String getResourceType() {
         return resourceType;
     }
@@ -61,6 +60,7 @@ public class Permission extends BaseEntity {
         this.resourceType = resourceType;
     }
 
+    @Column(name = "url",columnDefinition="varchar(255) default ''")
     public String getUrl() {
         return url;
     }
@@ -69,6 +69,7 @@ public class Permission extends BaseEntity {
         this.url = url;
     }
 
+    @Column(name = "permission",columnDefinition="varchar(255) default ''")
     public String getPermission() {
         return permission;
     }
@@ -77,6 +78,7 @@ public class Permission extends BaseEntity {
         this.permission = permission;
     }
 
+    @Column(name = "parentId",columnDefinition="varchar(255) default ''")
     public String getParentId() {
         return parentId;
     }
@@ -85,6 +87,7 @@ public class Permission extends BaseEntity {
         this.parentId = parentId;
     }
 
+    @Column(name = "parentIds",columnDefinition="varchar(500) default ''")
     public String getParentIds() {
         return parentIds;
     }
@@ -93,6 +96,7 @@ public class Permission extends BaseEntity {
         this.parentIds = parentIds;
     }
 
+    @Column(name = "isEnable",columnDefinition="bit default 1")
     public Boolean getIsEnable() {
         return isEnable;
     }
@@ -101,11 +105,14 @@ public class Permission extends BaseEntity {
         this.isEnable = isEnable;
     }
 
-    public List<Role> getRoles() {
+    @ManyToMany
+    @JoinTable(name="sys_RolePermission",joinColumns={@JoinColumn(name="permissionId",referencedColumnName = "id")},
+            inverseJoinColumns={@JoinColumn(name="roleId",referencedColumnName = "id")})
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 }

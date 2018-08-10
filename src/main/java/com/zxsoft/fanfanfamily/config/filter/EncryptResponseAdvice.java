@@ -1,4 +1,4 @@
-package com.zxsoft.fanfanfamily.config;
+package com.zxsoft.fanfanfamily.config.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +32,7 @@ public class EncryptResponseAdvice implements ResponseBodyAdvice {
             EncryptResponseBody annoEncrypt = methodParameter.getMethod().getAnnotation(EncryptResponseBody.class);
             //如果加密
             if(annoEncrypt.encryt() && o != null){
+                //TODO
                 ObjectMapper objectMapper = new ObjectMapper();
                 try {
                     String result =  objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);

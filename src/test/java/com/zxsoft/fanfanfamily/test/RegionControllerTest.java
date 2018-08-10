@@ -226,7 +226,7 @@ public class RegionControllerTest extends BaseTest {
         mapValue.add("page","0");
         mapValue.add("size","3");
         mapValue.add("sort","code");
-        request = get("/api/region/get")
+        request = get("/api/region/query")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);

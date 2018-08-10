@@ -4,10 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.springframework.http.ResponseEntity;
 
-public class BodyToPageableData {
+public class BodyToFanfAppData {
 
-    public static FanfAppData convert(Object obj) {
+    public static FanfAppData convert( Object obj) {
         //修改配置返回内容的过滤
         SerializerFeature[] serializerFeatures = {
                 SerializerFeature.WriteMapNullValue,
@@ -24,7 +25,7 @@ public class BodyToPageableData {
             JSONObject jsonPage = jsonObj.getJSONObject("pageable");
             if (jsonPage.containsKey("paged") && jsonPage.getBoolean("paged")) {
                 //分页响应转化
-                FanfAppData data = new FanfAppData();
+//                FanfAppData data = new FanfAppData();
                 PageableInnerData innerData = new PageableInnerData();
                 Long currentPage = jsonObj.getLong("number");
                 Long numberOfCurrentPage = jsonPage.getLong("numberOfElements");
@@ -38,13 +39,15 @@ public class BodyToPageableData {
                 innerData.setPageSize(totalPages);
                 innerData.setTotalCount(totalCount);
                 innerData.setContents(lst);
-                data.setStatus(status);
-                data.setData(innerData);
-
-                return data;
+                return FanFResponseBodyBuilder.ok("ok", innerData);
             }
+        } else if (obj.getClass() == ResponseEntity.class) {
+            ResponseEntity innerT = (ResponseEntity) obj;
+            Object innerObj = innerT.getBody();
+            return FanFResponseBodyBuilder.ok("ok", innerObj);
+        } else {
+            return FanFResponseBodyBuilder.ok("ok", obj);
         }
-
         return null;
     }
 }

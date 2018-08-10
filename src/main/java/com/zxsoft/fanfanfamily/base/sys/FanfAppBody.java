@@ -5,8 +5,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.lang.annotation.*;
 
-@FanfAppBody
-public @interface PageableBody {
+@Target({ElementType.TYPE,ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@ResponseBody
+public @interface FanfAppBody {
     @AliasFor("value")
     boolean value() default true;
 }
