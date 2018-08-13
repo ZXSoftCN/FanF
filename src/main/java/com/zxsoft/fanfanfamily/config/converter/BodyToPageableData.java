@@ -7,7 +7,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class BodyToPageableData {
 
-    public static FanfAppData convert(Object obj) {
+    public static FanFResponseEntity convert(Object obj) {
         //修改配置返回内容的过滤
         SerializerFeature[] serializerFeatures = {
                 SerializerFeature.WriteMapNullValue,
@@ -24,7 +24,7 @@ public class BodyToPageableData {
             JSONObject jsonPage = jsonObj.getJSONObject("pageable");
             if (jsonPage.containsKey("paged") && jsonPage.getBoolean("paged")) {
                 //分页响应转化
-                FanfAppData data = new FanfAppData();
+                FanFResponseEntity data = new FanFResponseEntity();
                 PageableInnerData innerData = new PageableInnerData();
                 Long currentPage = jsonObj.getLong("number");
                 Long numberOfCurrentPage = jsonPage.getLong("numberOfElements");
@@ -39,7 +39,7 @@ public class BodyToPageableData {
                 innerData.setTotalCount(totalCount);
                 innerData.setContents(lst);
                 data.setStatus(status);
-                data.setData(innerData);
+                data.setT(innerData);
 
                 return data;
             }

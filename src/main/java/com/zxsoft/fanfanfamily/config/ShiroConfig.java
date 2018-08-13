@@ -40,9 +40,11 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // 添加自己的过滤器并且取名为jwt
-        Map<String, Filter> filterMap = new HashMap<>();
+//        Map<String, Filter> filterMap = new HashMap<>();
+        Map<String, Filter> filterMap = shiroFilterFactoryBean.getFilters();//获取原Filter，再扩展。
         filterMap.put("jwt", new JWTFilter());
         shiroFilterFactoryBean.setFilters(filterMap);
+
 
         //默认登录处理
         shiroFilterFactoryBean.setLoginUrl("/login");
@@ -61,7 +63,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/druid/**", "anon");
         filterChainDefinitionMap.put("/user/regist", "anon");
         filterChainDefinitionMap.put("/gifCode", "anon");
-        filterChainDefinitionMap.put("/logout", "logout");
+        filterChainDefinitionMap.put("/logout", "logout");//系统原设定为logout
         filterChainDefinitionMap.put("/", "anon");
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/login", "anon");//登录，匿名

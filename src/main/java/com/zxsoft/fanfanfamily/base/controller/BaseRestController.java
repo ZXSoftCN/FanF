@@ -18,7 +18,7 @@ public interface BaseRestController<T extends BaseEntity> {
 
     ResponseEntity<T> addEntity(T t);
     ResponseEntity<T> addEntity(String parsingEntity);
-    ResponseEntity<T> moidifyEntity(T t);
+    ResponseEntity<T> modifyEntity(T t);
     ResponseEntity<T> modifyEntity(String parsingEntity);
     ResponseEntity deleteEntity(String jsonId);
     ResponseEntity deleteBatch(String jsonIds);

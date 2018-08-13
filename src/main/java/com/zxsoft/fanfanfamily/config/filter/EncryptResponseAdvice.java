@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zxsoft.fanfanfamily.base.sys.EncryptResponseBody;
 import com.zxsoft.fanfanfamily.common.AESUtil;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,6 +16,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
+/**
+ * * Order顺序:(1)EncryptResponseAdvice ——> (2)ApiResponseAdvice
+ */
+@Order(1)
 @RestControllerAdvice
 public class EncryptResponseAdvice implements ResponseBodyAdvice {
     @Override
@@ -37,7 +43,8 @@ public class EncryptResponseAdvice implements ResponseBodyAdvice {
                 try {
                     String result =  objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
                     byte[] enDatas = AESUtil.toEncrypt(result);//加密
-                    return Base64.getEncoder().encodeToString(enDatas);//Base64编码
+                    String encodeStr = Base64.getEncoder().encodeToString(enDatas);//Base64编码
+                    return encodeStr;
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }catch (UnsupportedEncodingException e){

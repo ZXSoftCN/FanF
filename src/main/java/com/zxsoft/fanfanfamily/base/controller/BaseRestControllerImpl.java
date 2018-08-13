@@ -23,6 +23,17 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 在Controller层提供基础方法：getById、queryPage、queryAll、addEntity、modifyEntity、
+ * deleteEntity、deleteBatch、uploadAvatar、loadAvatar。
+ *
+ *
+ *  * 将Controller返回为FanfAppData格式。
+ * 提供两种响应处理：
+ * 1、注解@FanfAppBody，返回ResponseEntity对象，通过ApiResponseAdvice会将其转化成FanfAppData格式；
+ * 2、使用FanFResponseBodyBuilder中方法，可加入msg内容，描述服务执行信息。
+ * @param <T>
+ */
 public abstract class BaseRestControllerImpl<T extends BaseEntity> implements BaseRestController<T> {
 
     private Logger log = LoggerFactory.getLogger(BaseRestControllerImpl.class);
@@ -98,7 +109,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     @Override
     @FanfAppBody
     @PostMapping("/modifyEntity")
-    public ResponseEntity<T> moidifyEntity(@RequestBody T t) {
+    public ResponseEntity<T> modifyEntity(@RequestBody T t) {
         T item = getBaseService().modify(t);
         if (item != null) {
             return ResponseEntity.ok(item);

@@ -1,10 +1,27 @@
 package com.zxsoft.fanfanfamily.config.filter;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.auth0.jwt.exceptions.InvalidClaimException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.zxsoft.fanfanfamily.base.domain.UserInfo;
+import com.zxsoft.fanfanfamily.base.service.UserInfoService;
+import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
+import com.zxsoft.fanfanfamily.common.JWTUtil;
 import com.zxsoft.fanfanfamily.config.JWTToken;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseEntity;
+import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
+import org.apache.shiro.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -13,10 +30,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class JWTFilter extends BasicHttpAuthenticationFilter {
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
 
     /**
      * 判断用户是否想要登入。
@@ -33,9 +52,12 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
      *
      */
     @Override
-    protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String authorization = httpServletRequest.getHeader("token");
+    protected boolean executeLogin(ServletRequest request, ServletResponse response) throws AuthenticationException {
+        HttpServletRequest httpRequest = WebUtils.toHttp(request);
+        if (httpRequest.getHeader("token") == null || httpRequest.getHeader("token").isEmpty()) {
+            throw new AuthenticationException("Header未能提供token");
+        }
+        String authorization = httpRequest.getHeader("token");
 
         JWTToken token = new JWTToken(authorization);
         // 提交给realm进行登入，如果错误他会抛出异常并被捕获
@@ -45,6 +67,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     }
 
     /**
+     * 【原版本】
      * 这里我们详细说明下为什么最终返回的都是true，即允许访问
      * 例如我们提供一个地址 GET /article
      * 登入用户和游客看到的内容是不同的
@@ -53,20 +76,81 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
      * 如果有些资源只有登入用户才能访问，我们只需要在方法上面加上 @RequiresAuthentication 注解即可
      * 但是这样做有一个缺点，就是不能够对GET,POST等请求进行分别过滤鉴权(因为我们重写了官方的方法)，但实际上对应用影响不大
      */
+    /**
+     * 改为认证失败后返回false，转至onAccesssDenied处理。
+     * 这样不会进入业务服务中Controller。
+     * @param request
+     * @param response
+     * @param mappedValue
+     * @return
+     */
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         if (isLoginAttempt(request, response)) {
             try {
                 executeLogin(request, response);
-            } catch (AuthenticationException e) {
-                response403(request, response);//重定向到403
-            } catch (Exception e) {
-                response401(request, response);
+            }  catch (Exception e) {
+//                response401(request, response);//此处重定向会造成循环认证。
+                return false;
             }
         } else {
             response403(request, response);//重定向到403
+            return false;
         }
         return true;
+    }
+
+    /*
+        isAccessAllowed返回false会触发该方法。
+        父类方法，会再次调用executeLogin。如果false，则直接返回异常信息，不再进行跳转。
+        override：再次调用executeLogin，异常后跳转不直接返回异常消息，返回false。
+     */
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        boolean bIsLogin = false;
+        try {
+            bIsLogin =executeLogin(request, response);
+        }catch (AuthenticationException e) {
+//            response403(request, response);//重定向到403
+            sendDeniedMsg(request,response,e.getMessage());//Realm认证只返回默认消息，无法定位到认证超时、无效的明细信息。
+
+        } catch (Exception e) {
+//            response401(request, response);
+            sendDeniedMsg(request,response,e.getMessage());
+        }
+        return bIsLogin;
+    }
+
+    private void sendDeniedMsg(ServletRequest request, ServletResponse response,String msg){
+        FanFResponseEntity entity = new FanFResponseEntity();
+        entity.setStatus(0);
+        entity.setMsg(String.format("认证失败：%s",msg));
+        HttpServletResponse httpResponse = WebUtils.toHttp(response);
+        httpResponse.setCharacterEncoding("UTF-8");
+        httpResponse.setContentType("application/json; charset=utf-8");
+        HttpServletRequest httpRequest = WebUtils.toHttp(request);
+        if (httpRequest.getHeader("token") != null && !httpRequest.getHeader("token").isEmpty()) {
+            httpResponse.setHeader("token",httpRequest.getHeader("token"));
+        }
+        try {
+            PrintWriter out = httpResponse.getWriter();
+            SerializerFeature[] serializerFeatures = {
+                    SerializerFeature.WriteMapNullValue,
+                    SerializerFeature.WriteNullStringAsEmpty,
+                    SerializerFeature.WriteNullNumberAsZero,
+                    SerializerFeature.WriteNullBooleanAsFalse,
+                    SerializerFeature.WriteNullListAsEmpty,
+                    SerializerFeature.DisableCircularReferenceDetect,
+                    SerializerFeature.PrettyFormat};
+
+            String strObj = JSON.toJSONStringWithDateFormat(entity,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+            out.append(strObj);
+        } catch (IOException exception) {
+            httpResponse.setStatus(401);
+            String authcHeader = this.getAuthcScheme() + " realm=\"" + this.getApplicationName() + "\"";
+            httpResponse.setHeader("WWW-Authenticate", authcHeader);
+        }
+
     }
 
     /**

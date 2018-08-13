@@ -5,6 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * 用于RestExceptionAdvice。
+ * 标准的Rest服务不建议使用，因为Header中的token，可在ResponseHeaderHandler通过Session加入。
+ * 无须手工加入。
+ */
 public class FanFResponseBuilder {
     public static <T> ResponseEntity<T> ok(HttpHeaders headers, String token, String msg, T t) {
         ResponseEntity<T> responseEntity = new ResponseEntity(FanFResponseEntity.ok(msg,t),

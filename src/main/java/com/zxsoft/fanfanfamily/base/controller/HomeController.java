@@ -2,11 +2,16 @@ package com.zxsoft.fanfanfamily.base.controller;
 
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import com.zxsoft.fanfanfamily.base.domain.vo.UserInfoDto;
+import com.zxsoft.fanfanfamily.base.service.UserInfoService;
+import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.base.sys.DecryptRequestBody;
 import com.zxsoft.fanfanfamily.base.sys.EncryptResponseBody;
+import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.common.AESUtil;
 import com.zxsoft.fanfanfamily.common.JWTUtil;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
+import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationException;
@@ -14,6 +19,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +35,9 @@ import java.util.Map;
 @Controller
 public class HomeController {
 
+
+    @Autowired
+    private UserInfoService userInfoService;
 
     @RequestMapping({"/","/index"})
     public String index(){
@@ -87,7 +96,7 @@ public class HomeController {
     //    @Log(value = "登录跟踪")
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity login(HttpServletRequest request, @RequestBody UserInfoDto userData, Map<String, Object> map) throws Exception{
+    public FanfAppData login(HttpServletRequest request, @RequestBody UserInfoDto userData, Map<String, Object> map) throws Exception{
         System.out.println("HomeController.login()");
         // 登录失败从request中获取shiro处理的异常信息。
         // shiroLoginFailure:就是shiro异常类的全类名.
@@ -96,12 +105,23 @@ public class HomeController {
         Subject currentUser = SecurityUtils.getSubject();
         try {
             if (currentUser.isAuthenticated()) {
-                UserInfo currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
-                //不管当前用户是不是更换用户名，都登出再重新登入。
-                if(!currUserInfo.getUserName().equalsIgnoreCase(token.getUsername())){
-                    currentUser.logout();
-                    currentUser.login(token);
+                if (currentUser.getPrincipals().getPrimaryPrincipal().getClass() == String.class) {
+                    //则shiro已经过了JWT认证
+                    String strToken = currentUser.getPrincipals().getPrimaryPrincipal().toString();
+                    String userName = JWTUtil.getUsername(strToken);
+                    if (!userName.equalsIgnoreCase(token.getUsername())) {
+                        currentUser.logout();
+                        currentUser.login(token);
+                    }
+                } else {
+                    UserInfo currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
+                    //如果当前用户更换用户名，都登出再重新登入。
+                    if(!currUserInfo.getUserName().equalsIgnoreCase(token.getUsername())){
+                        currentUser.logout();
+                        currentUser.login(token);
+                    }
                 }
+
             } else {
                 currentUser.login(token);
             }
@@ -116,22 +136,36 @@ public class HomeController {
             throw new Exception("UnknownAccountException -- > 账号认证错误。",e.getCause());
         }
         Session session = currentUser.getSession();
+        UserInfo currUserInfo = null;
+        String strToken="";
+        if (currentUser.getPrincipals().getPrimaryPrincipal().getClass() == String.class) {
+            //则shiro已经过了JWT认证
+            String strOrgToken = currentUser.getPrincipals().getPrimaryPrincipal().toString();
+            currUserInfo = userInfoService.findByUsername(token.getUsername()).get();
+            strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
 
-        UserInfo currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
-        String strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
+        } else {
+            currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
+            strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
+        }
+
         session.setAttribute("token",strToken);
-        session.setAttribute("userName",currUserInfo.getUserName());
-        return FanFResponseBuilder.ok(strToken,"登录成功",currUserInfo);
+        session.setAttribute("userName",token.getUsername());
+        return FanFResponseBodyBuilder.ok("登录成功",currUserInfo);
+//        return ResponseEntity.ok(currUserInfo);
+//        return FanFResponseBuilder.ok(strToken,"登录成功",currUserInfo);
     }
 
     @RequestMapping("/encrypt/{value}")
     @EncryptResponseBody
+    @FanfAppBody
     public String responseEncrypt(@PathVariable(required = false,name = "value") String enValue,
                                   @RequestBody String bodyString) throws Exception{
 
         ByteSource bsEncrypt = ByteSource.Util.bytes(enValue);;
         byte[] encodes = AESUtil.toEncrypt(enValue.getBytes("UTF-8"));//加密成字节数组
         String enString = ByteSource.Util.bytes(encodes).toBase64();//将加密的字节数组Base64编码成字符串保存
+
         return enString;
     }
 
@@ -171,8 +205,20 @@ public class HomeController {
         return enData;
     }
 
+    /*
+        logout后重定向到内部logout，返回Json信息
+     */
+    @RequestMapping("/logout")
+    public FanfAppData logout(){
+        System.out.println("------登出-------");
+        SecurityUtils.getSubject().logout();
+        return FanFResponseBodyBuilder.ok("logout",null);
+//        return "403";
+    }
+
     @RequestMapping("/403")
-    public String unAuthentication(){
+    public String unAuthentication(HttpServletRequest request){
+        String errorMsg = request.getAttribute("error").toString();
         System.out.println("------认证错误：Unauthorized-------");
         throw new AuthenticationException();
 //        return "403";
