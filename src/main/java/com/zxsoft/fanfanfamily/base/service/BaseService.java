@@ -22,11 +22,13 @@ public interface BaseService<T> {
 
     //region 用于BaseController对应基础方法
     Optional<T> getById(String id);
+    Optional<T> getByKey(String key);//可通过code或name来查询
     List<T> findAll();
     Page<T> findAll(Pageable pageable);
     T add(T t);
     T modify(T t);
     T save(T t);
+    List<T> saveBatch(List<T> collT);
     Boolean delete(String id);
     Boolean deleteBatch(List<String> ids);
     Path uploadAvatarExtend(T t, String fileName, String postfix, byte[] bytes);

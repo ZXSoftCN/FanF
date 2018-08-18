@@ -2,6 +2,7 @@ package com.zxsoft.fanfanfamily.base.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.StorageException;
@@ -111,6 +112,16 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
         return getBaseDao().findById(id);
     }
 
+    /**
+     * 默认使用id。下行实体根据自身关键字属性进行实现，如按code或name查询。
+     * @param key
+     * @return
+     */
+    @Override
+    public Optional<T> getByKey(String key) {
+        return getBaseDao().findById(key);
+    }
+
     @Override
     public Path storeFile(MultipartFile file) {
         Path filePath;
@@ -158,6 +169,13 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     @Transactional
     public T modify(T t) {
         return getBaseDao().save(t);
+    }
+
+    @Override
+    @Transactional
+    public List<T> saveBatch(List<T> collT) {
+
+        return getBaseDao().saveAll(collT);
     }
 
     @Override

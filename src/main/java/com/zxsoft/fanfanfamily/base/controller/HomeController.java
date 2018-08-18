@@ -9,6 +9,7 @@ import com.zxsoft.fanfanfamily.base.sys.EncryptResponseBody;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.common.AESUtil;
 import com.zxsoft.fanfanfamily.common.JWTUtil;
+import com.zxsoft.fanfanfamily.config.JWTToken;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
@@ -148,12 +149,73 @@ public class HomeController {
             currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
             strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
         }
-
+        userData.setToken(strToken);
         session.setAttribute("token",strToken);
         session.setAttribute("userName",token.getUsername());
-        return FanFResponseBodyBuilder.ok("登录成功",currUserInfo);
+        return FanFResponseBodyBuilder.ok("登录成功",userData);
 //        return ResponseEntity.ok(currUserInfo);
 //        return FanFResponseBuilder.ok(strToken,"登录成功",currUserInfo);
+    }
+
+    //    @Log(value = "登录跟踪")
+    @RequestMapping("/loginByToken")
+    @ResponseBody
+    public FanfAppData loginByToken(@RequestParam(name = "token") String token) throws Exception{
+        // 登录失败从request中获取shiro处理的异常信息。
+        // shiroLoginFailure:就是shiro异常类的全类名.
+
+        JWTToken jwtToken = new JWTToken(token);
+        Subject currentUser = SecurityUtils.getSubject();
+        try {
+            if (currentUser.isAuthenticated()) {
+                if (currentUser.getPrincipals().getPrimaryPrincipal().getClass() == String.class) {
+                    //则shiro已经过了JWT认证
+                    String strToken = currentUser.getPrincipals().getPrimaryPrincipal().toString();
+                    String userName = JWTUtil.getUsername(strToken);
+                    if (!userName.equalsIgnoreCase(userName)) {
+                        currentUser.logout();
+                        currentUser.login(jwtToken);
+                    }
+                } else {
+                    UserInfo currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
+                    String userName = JWTUtil.getUsername(token);
+                    //如果当前用户更换用户名，都登出再重新登入。
+                    if(!currUserInfo.getUserName().equalsIgnoreCase(userName)){
+                        currentUser.logout();
+                        currentUser.login(jwtToken);
+                    }
+                }
+
+            } else {
+                currentUser.login(jwtToken);
+            }
+
+        } catch (UnknownAccountException e) {
+            throw new Exception("UnknownAccountException -- > 账号不存在。",e.getCause());
+        } catch (IncorrectCredentialsException e) {
+            throw new Exception("IncorrectCredentialsException -- > 密码不正确。",e.getCause());
+        } catch (LockedAccountException e) {
+            throw new Exception("UnknownAccountException -- > 账号已被锁定。",e.getCause());
+        } catch (AuthenticationException e) {
+            throw new Exception("UnknownAccountException -- > 账号认证错误。",e.getCause());
+        }
+        Session session = currentUser.getSession();
+        UserInfo currUserInfo = null;
+        String strToken="";
+        if (currentUser.getPrincipals().getPrimaryPrincipal().getClass() == String.class) {
+            //则shiro已经过了JWT认证
+            String strOrgToken = currentUser.getPrincipals().getPrimaryPrincipal().toString();
+            currUserInfo = userInfoService.findByUsername(token.getUsername()).get();
+            strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
+
+        } else {
+            currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
+            strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
+        }
+        userData.setToken(strToken);
+        session.setAttribute("token",strToken);
+        session.setAttribute("userName",token.getUsername());
+        return FanFResponseBodyBuilder.ok("登录成功",userData);
     }
 
     @RequestMapping("/encrypt/{value}")

@@ -1,5 +1,6 @@
 package com.zxsoft.fanfanfamily.base.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "sys_Role")
+@NamedEntityGraph(name = "Role.lazy",attributeNodes = {@NamedAttributeNode("userInfos"),@NamedAttributeNode("permissions")})
 public class Role extends BaseEntity{
 
     private static final long serialVersionUID = -8037045542580771196L;
@@ -67,7 +69,7 @@ public class Role extends BaseEntity{
         this.isEnable = isEnable;
     }
 
-    @ManyToMany(fetch= FetchType.EAGER)
+    @ManyToMany//(fetch= FetchType.EAGER)
     @JoinTable(name="sys_RolePermission",joinColumns={@JoinColumn(name="roleId",referencedColumnName = "id")},
             inverseJoinColumns={@JoinColumn(name="permissionId",referencedColumnName = "id")})
     public Set<Permission> getPermissions() {
@@ -78,6 +80,7 @@ public class Role extends BaseEntity{
         this.permissions = permissions;
     }
 
+    @JSONField(serialize = false)
     @ManyToMany
     @JoinTable(name="sys_UserRole",joinColumns={@JoinColumn(name="roleId",referencedColumnName = "id")},
             inverseJoinColumns={@JoinColumn(name="userInfoId",referencedColumnName = "id")})

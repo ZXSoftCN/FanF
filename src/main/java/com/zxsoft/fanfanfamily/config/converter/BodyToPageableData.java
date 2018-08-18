@@ -10,13 +10,13 @@ public class BodyToPageableData {
     public static FanFResponseEntity convert(Object obj) {
         //修改配置返回内容的过滤
         SerializerFeature[] serializerFeatures = {
-                SerializerFeature.WriteMapNullValue,
+//                SerializerFeature.WriteMapNullValue,
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
                 SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.DisableCircularReferenceDetect,
-                SerializerFeature.PrettyFormat};
+                SerializerFeature.DisableCircularReferenceDetect
+                };//SerializerFeature.PrettyFormat
 
         String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
         JSONObject jsonObj = JSON.parseObject(strObj);

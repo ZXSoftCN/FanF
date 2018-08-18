@@ -1,5 +1,6 @@
 package com.zxsoft.fanfanfamily.base.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.hibernate.annotations.GenericGenerator;
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -45,6 +46,7 @@ public abstract class BaseEntity implements Serializable {
     }
 
 
+    @JSONField(serialize = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss" )
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_time",updatable = false)
@@ -56,6 +58,7 @@ public abstract class BaseEntity implements Serializable {
         this.createTime = createTime;
     }
 
+    @JSONField(serialize = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss" )
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "lastUpdate_Time")
@@ -67,6 +70,7 @@ public abstract class BaseEntity implements Serializable {
         this.lastUpdateTime = lastUpdateTime;
     }
 
+    @JSONField(serialize = false)
     @Column(name="creator",updatable = false)
     public String getCreator() {
         return creator;
@@ -76,6 +80,7 @@ public abstract class BaseEntity implements Serializable {
         this.creator = creator;
     }
 
+    @JSONField(serialize = false)
     @Column(name="lastUpdater")
     public String getLastUpdater() {
         return lastUpdater;

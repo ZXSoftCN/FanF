@@ -55,6 +55,19 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     }
 
     @Override
+    @FanfAppBody
+    @GetMapping(value = "/getbykey/{key}")
+    public ResponseEntity<T> getByKey(@PathVariable(required = false,name = "key") String key) {
+        Optional<T> item = getBaseService().getByKey(key);
+        if (item.isPresent()) {
+            return ResponseEntity.ok(item.get());
+        } else {
+            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @Override
 //    @PageableBody
     @FanfAppBody
     @RequestMapping(value = "/query")
@@ -132,6 +145,20 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
         T item = getBaseService().modify(t);
         if (item != null) {
             return ResponseEntity.ok(item);
+        }else {
+            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @Override
+    @FanfAppBody
+    @PostMapping("/saveBatch")
+    public ResponseEntity<List<T>> saveBatch(@RequestBody List<T> lstEntity) {
+
+        List<T> lstItem = getBaseService().saveBatch(lstEntity);
+        if (lstItem.size() > 0) {
+            return ResponseEntity.ok(lstItem);
         }else {
             //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
             return ResponseEntity.badRequest().body(null);

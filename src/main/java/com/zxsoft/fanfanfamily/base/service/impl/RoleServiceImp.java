@@ -5,11 +5,15 @@ import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.service.RoleService;
 import com.zxsoft.fanfanfamily.base.repository.RoleDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RoleServiceImp extends BaseServiceImpl<Role> implements RoleService {
@@ -36,5 +40,20 @@ public class RoleServiceImp extends BaseServiceImpl<Role> implements RoleService
     @Override
     public Path uploadAvatarExtend(Role role, MultipartFile file) {
         return null;
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return roleDao.queryAllByIdNotNull();
+    }
+
+    @Override
+    public Page<Role> findAll(Pageable pageable) {
+        return roleDao.queryRolesByIdNotNull(pageable);
+    }
+
+    @Override
+    public Optional<Role> getByKey(String key) {
+        return roleDao.findFirstByRoleNameContaining(key);
     }
 }

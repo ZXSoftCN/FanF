@@ -1,7 +1,12 @@
 package com.zxsoft.fanfanfamily.test;
 
+import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import com.zxsoft.fanfanfamily.base.repository.UserInfoDao;
+import com.zxsoft.fanfanfamily.base.service.RoleService;
+import com.zxsoft.fanfanfamily.base.service.UserInfoService;
+import com.zxsoft.fanfanfamily.base.service.impl.RoleServiceImp;
+import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.config.AppCrossOriginProperties;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import org.junit.Test;
@@ -36,13 +41,17 @@ public class UserInfoControllerTest extends BaseTest {
     private AppPropertiesConfig appPropertiesConfig;
     @Autowired
     private UserInfoDao userInfoDao;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    private UserInfoService userInfoService;
 
 
     @Test
     @Rollback(value = true)
     public void addUserInfo() {
         //测试属性组
-        String requestBody = "{\"name\":\"006\",\"password\":\"123456\"}";
+        String requestBody = "{\"name\":\"007\",\"password\":\"123456\"}";
         RequestBuilder request;
         request = post("/api/user/add")
                 .accept(MediaType.APPLICATION_JSON)
@@ -112,6 +121,35 @@ public class UserInfoControllerTest extends BaseTest {
     }
 
     @Test
+    public void addRolesToUser() {
+        Role item1 = roleService.getByKey("超级管理员").get();
+        Role item2 = roleService.getByKey("用户").get();
+
+        UserInfo userInfo = userInfoService.getByKey("006").get();
+        userInfo.getRoleList().add(item1);
+        userInfo.getRoleList().add(item2);
+
+        userInfoService.save(userInfo);
+    }
+
+    @Test
+    public void queryAllUserInfo() {
+        RequestBuilder request;
+
+        request = get(String.format("/api/user/queryAll"))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN);
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
     public void queryUserInfoDao(){
         Pageable page = PageRequest.of(0,2);
         Optional<UserInfo> item = userInfoDao.findById("67117d84-4e15-4ac7-b704-caeed79652a9");
@@ -124,10 +162,15 @@ public class UserInfoControllerTest extends BaseTest {
     public void queryUserInfo() {
         RequestBuilder request;
 
-        String userInfoId = "67117d84-4e15-4ac7-b704-caeed79652a9";// "402881e564c015100164c0154cbe0000";
-        request = get(String.format("/api/user/get/%s",userInfoId))
+        String requestBody = "{\"userName\":\"006\"}";
+        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
+        multiParams.add("userName","006");
+
+        String userName = "006";// "402881e564c015100164c0154cbe0000";
+        request = post(String.format("/api/user/userinfo"))
                 .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.TEXT_PLAIN);
+                .contentType(MediaType.APPLICATION_JSON)
+                .params(multiParams);
 
         try {
             mockMvc.perform(request)

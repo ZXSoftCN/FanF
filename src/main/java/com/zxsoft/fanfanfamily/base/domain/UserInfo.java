@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "sys_UserInfo")
+@NamedEntityGraph(name = "UserInfo.lazy",attributeNodes = {@NamedAttributeNode("roleList")})
 public class UserInfo extends BaseEntity {
 
     private static final long serialVersionUID = -5804977308683352078L;
@@ -88,7 +89,7 @@ public class UserInfo extends BaseEntity {
         this.state = state;
     }
 
-    @ManyToMany(fetch= FetchType.EAGER)//立即从数据库中进行加载数据;
+    @ManyToMany//(fetch= FetchType.EAGER)//立即从数据库中进行加载数据;
     @JoinTable(name = "sys_UserRole", joinColumns = { @JoinColumn(name = "userInfoId",referencedColumnName = "id") },
             inverseJoinColumns ={@JoinColumn(name = "roleId",referencedColumnName = "id") })
     public Set<Role> getRoleList() {

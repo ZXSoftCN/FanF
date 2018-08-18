@@ -1,10 +1,14 @@
 package com.zxsoft.fanfanfamily.base.domain.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class UserInfoDto {
     private String userName;
     private String name;
     private String password;
+    private String token;
 
+    @JSONField(name = "ticket",alternateNames = {"ticket","userName","username"})
     public String getUserName() {
         return userName;
     }
@@ -21,11 +25,20 @@ public class UserInfoDto {
         this.name = name;
     }
 
+    @JSONField(serialize = false)
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

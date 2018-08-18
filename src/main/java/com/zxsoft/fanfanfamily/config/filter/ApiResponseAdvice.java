@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 
 /**
@@ -43,7 +44,14 @@ public class ApiResponseAdvice implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
 
-        Object obj = BodyToFanfAppData.convert(o);
+        Object obj;
+        if (List.class.isAssignableFrom(o.getClass())) {
+            List lstObj = (List) o;
+            ListWrapper wrapper = new ListWrapper(lstObj);
+            obj = BodyToFanfAppData.convert(wrapper);
+        } else {
+            obj = BodyToFanfAppData.convert(o);
+        }
         return obj;
     }
 }

@@ -9,10 +9,13 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 * 扩展FastJsonHttpMessageConverter，加入Authorization Token进入Header中。
@@ -28,25 +31,37 @@ public class ResponseHeaderHandler extends FastJsonHttpMessageConverter {
      */
     @Override
     protected void addDefaultHeaders(HttpHeaders headers, Object o, MediaType contentType) throws IOException {
+        headers.setAccessControlAllowCredentials(true);
+        List<String> lstAll = new ArrayList<>();
+        lstAll.add("*");
+        headers.setAccessControlAllowHeaders(lstAll);
+        List<HttpMethod> lstMethod = new ArrayList<>();
+        lstMethod.add(HttpMethod.HEAD);
+        lstMethod.add(HttpMethod.OPTIONS);
+        lstMethod.add(HttpMethod.GET);
+        lstMethod.add(HttpMethod.POST);
+        lstMethod.add(HttpMethod.PATCH);
+        headers.setAccessControlAllowMethods(lstMethod);
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
 
         String authToken = "";
         if ((o.getClass() == FanfAppData.class && ((FanfAppData) o).getStatus() > 0)) {
-
-            Subject current = SecurityUtils.getSubject();
-            //TODO 将返回的Object JWT化绑定到token.（暂用Session记录）
-            // SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()
-            if (current != null && current.getSession() != null) {
-                if (current.getSession().getAttributeKeys().contains("token")) {
-                    authToken = current.getSession().getAttribute("token").toString();
-                }
-            } else if (session != null) {
-                try {
+            try{
+                Subject current = SecurityUtils.getSubject();
+                //TODO 将返回的Object JWT化绑定到token.（暂用Session记录）
+                // SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()
+                if (current != null && current.getSession() != null) {
+                    if (current.getSession().getAttributeKeys().contains("token")) {
+                        authToken = current.getSession().getAttribute("token").toString();
+                    }
+                } else if (session != null) {
                     authToken = session.getAttribute("token").toString();
-                } catch (Exception ex) {
-                    //HttpSession获取不存在的key对象时，直接抛出异常。
-                    //无法提前检查
-                    authToken = "";
                 }
+            }catch (Exception ex) {
+                //HttpSession获取不存在的key对象时，直接抛出异常。
+                //无法提前检查
+                authToken = "";
             }
             if (!authToken.isEmpty()) {
                 if (headers.containsKey("token")) {

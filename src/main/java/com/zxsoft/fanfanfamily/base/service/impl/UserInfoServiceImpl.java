@@ -118,6 +118,21 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
     }
 
     @Override
+    public List<UserInfo> findAll() {
+        return userInfoDao.queryAllByIdNotNull();
+    }
+
+    @Override
+    public Page<UserInfo> findAll(Pageable pageable) {
+        return userInfoDao.queryUserInfosByIdNotNull(pageable);
+    }
+
+    @Override
+    public Optional<UserInfo> getByKey(String key) {
+        return userInfoDao.findFirstByUserNameContaining(key);
+    }
+
+    @Override
     public UserInfo add(UserInfo userInfo) {
         if (userInfo.getUserName() == null || userInfo.getUserName().isEmpty()) {
             userInfo.setUserName(userInfo.getName());

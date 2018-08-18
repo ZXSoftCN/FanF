@@ -128,6 +128,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         HttpServletResponse httpResponse = WebUtils.toHttp(response);
         httpResponse.setCharacterEncoding("UTF-8");
         httpResponse.setContentType("application/json; charset=utf-8");
+
         HttpServletRequest httpRequest = WebUtils.toHttp(request);
         if (httpRequest.getHeader("token") != null && !httpRequest.getHeader("token").isEmpty()) {
             httpResponse.setHeader("token",httpRequest.getHeader("token"));
@@ -135,7 +136,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         try {
             PrintWriter out = httpResponse.getWriter();
             SerializerFeature[] serializerFeatures = {
-                    SerializerFeature.WriteMapNullValue,
+//                    SerializerFeature.WriteMapNullValue,
                     SerializerFeature.WriteNullStringAsEmpty,
                     SerializerFeature.WriteNullNumberAsZero,
                     SerializerFeature.WriteNullBooleanAsFalse,

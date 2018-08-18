@@ -6,21 +6,27 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 public class BodyToFanfAppData {
 
     public static FanfAppData convert( Object obj) {
         //修改配置返回内容的过滤
         SerializerFeature[] serializerFeatures = {
-                SerializerFeature.WriteMapNullValue,
+//                SerializerFeature.WriteMapNullValue,
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
                 SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.DisableCircularReferenceDetect,
-                SerializerFeature.PrettyFormat};
+                SerializerFeature.DisableCircularReferenceDetect
+                };//SerializerFeature.PrettyFormat
 
-        String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
         try {
+            String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+            if (List.class.isAssignableFrom(obj.getClass())) {
+//                JSONArray jsonArray = JSON.parseArray(strObj);
+                return FanFResponseBodyBuilder.ok("ok", obj);
+            }
             JSONObject jsonObj = JSON.parseObject(strObj);
             if (jsonObj.containsKey("pageable")) {
                 JSONObject jsonPage = jsonObj.getJSONObject("pageable");
