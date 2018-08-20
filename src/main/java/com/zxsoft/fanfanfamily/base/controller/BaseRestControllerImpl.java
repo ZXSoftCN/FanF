@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.zxsoft.fanfanfamily.base.domain.BaseEntity;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
+import com.zxsoft.fanfanfamily.base.domain.vo.EntityIdDto;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.base.sys.PageableBody;
@@ -50,21 +51,43 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
             return ResponseEntity.ok(item.get());
         } else {
             //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(null);
         }
     }
 
     @Override
     @FanfAppBody
-    @GetMapping(value = "/getbykey/{key}")
+    @GetMapping(value = "/getByKey/{key}")
     public ResponseEntity<T> getByKey(@PathVariable(required = false,name = "key") String key) {
         Optional<T> item = getBaseService().getByKey(key);
         if (item.isPresent()) {
             return ResponseEntity.ok(item.get());
         } else {
             //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(null);
         }
+    }
+
+    @Override
+    @FanfAppBody
+    @PostMapping(value = "/getEntity")
+    public ResponseEntity<T> getEntity(@RequestBody String entityKey) {
+        Feature[] serializerFeatures = {
+                Feature.AllowSingleQuotes};
+
+//        Object obj = JSON.parse(parsingEntity, serializerFeatures);
+//        TypeReference<T> type = new TypeReference<T>() {};
+        EntityIdDto dto = JSON.parseObject(entityKey,EntityIdDto.class,serializerFeatures);
+        if (dto != null) {
+            Optional<T> item = getBaseService().getById(dto.getId());
+            if (item.isPresent()) {
+                return ResponseEntity.ok(item.get());
+            } else {
+                //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
+                return ResponseEntity.ok(null);
+            }
+        }
+        return ResponseEntity.ok(null);
     }
 
     @Override
