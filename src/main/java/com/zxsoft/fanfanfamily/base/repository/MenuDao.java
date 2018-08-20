@@ -22,9 +22,9 @@ public interface MenuDao extends JpaRepository<Menu, String> {
     List<Menu> findAllByNameContaining(String nameLike);
 
     //扩展
-    List<Menu> findAllByParentMenuEquals(Menu menu);
+    List<Menu> findAllByParentMenuEqualsOrderBySortNo(Menu menu);
 
     List<Menu> queryAllByParentMenu(String parentMenu);//根据父级菜单查子菜单
-    List<Menu> queryAllByParentMenuIsNull();//顶级菜单
+    List<Menu> queryAllByParentMenuIsNullOrderBySortNo();//顶级菜单
 
 }

@@ -63,7 +63,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/druid/**", "anon");
         filterChainDefinitionMap.put("/user/regist", "anon");
         filterChainDefinitionMap.put("/gifCode", "anon");
-        filterChainDefinitionMap.put("/logout", "logout");//系统原设定为logout
+        filterChainDefinitionMap.put("/loginByToken", "anon");
+        filterChainDefinitionMap.put("/logout", "anon");//系统原设定为logout
         filterChainDefinitionMap.put("/", "anon");
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/login", "anon");//登录，匿名

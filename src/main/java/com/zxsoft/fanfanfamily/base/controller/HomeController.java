@@ -157,13 +157,17 @@ public class HomeController {
 //        return FanFResponseBuilder.ok(strToken,"登录成功",currUserInfo);
     }
 
+    /**
+     * 根据token进行单点登录，如当前会话已是认证状态则直接返回当前userInfo.
+     * 否则进行jwt认证。通过后会延长token时长，返回新的token。
+     * @param token
+     * @return
+     * @throws Exception
+     */
     //    @Log(value = "登录跟踪")
     @RequestMapping("/loginByToken")
     @ResponseBody
     public FanfAppData loginByToken(@RequestParam(name = "token") String token) throws Exception{
-        // 登录失败从request中获取shiro处理的异常信息。
-        // shiroLoginFailure:就是shiro异常类的全类名.
-
         JWTToken jwtToken = new JWTToken(token);
         Subject currentUser = SecurityUtils.getSubject();
         try {
@@ -199,22 +203,27 @@ public class HomeController {
         } catch (AuthenticationException e) {
             throw new Exception("UnknownAccountException -- > 账号认证错误。",e.getCause());
         }
-        Session session = currentUser.getSession();
+
+        //region 代码段处理逻辑：currentUser认证通过后，如果是标准User登录，则原session中存有token,
+        // 不再签名新token。如果是JWT登录，则在jwtReaml中已生新token赋值到session中。这里不在对session进行赋值。
         UserInfo currUserInfo = null;
-        String strToken="";
+        String strToken=currentUser.getSession().getAttribute("token").toString();
         if (currentUser.getPrincipals().getPrimaryPrincipal().getClass() == String.class) {
             //则shiro已经过了JWT认证
             String strOrgToken = currentUser.getPrincipals().getPrimaryPrincipal().toString();
-            currUserInfo = userInfoService.findByUsername(token.getUsername()).get();
-            strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
+            String userName = JWTUtil.getUsername(strOrgToken);
+            currUserInfo = userInfoService.findByUsername(userName).get();
+//            strToken = JWTUtil.sign(userName,currUserInfo.getPassword());//生成新的token
 
         } else {
             currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
-            strToken = JWTUtil.sign(token.getUsername(),currUserInfo.getPassword());
+//            strToken = JWTUtil.sign(currUserInfo.getUserName(),currUserInfo.getPassword());//生成新的token
         }
+        UserInfoDto userData = new UserInfoDto();
+        userData.setUserName(currUserInfo.getUserName());
+        userData.setName(currUserInfo.getName());
         userData.setToken(strToken);
-        session.setAttribute("token",strToken);
-        session.setAttribute("userName",token.getUsername());
+        //endregion
         return FanFResponseBodyBuilder.ok("登录成功",userData);
     }
 
@@ -271,10 +280,12 @@ public class HomeController {
         logout后重定向到内部logout，返回Json信息
      */
     @RequestMapping("/logout")
+    @ResponseBody
     public FanfAppData logout(){
         System.out.println("------登出-------");
         SecurityUtils.getSubject().logout();
-        return FanFResponseBodyBuilder.ok("logout",null);
+        Object obj = new Object();
+        return FanFResponseBodyBuilder.ok("logout",obj);
 //        return "403";
     }
 

@@ -121,7 +121,7 @@ public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuServic
      */
     @Override
     public List<Menu> queryTopMenuAllTree() {
-        List<Menu> topMenus = menuDao.queryAllByParentMenuIsNull();
+        List<Menu> topMenus = menuDao.queryAllByParentMenuIsNullOrderBySortNo();
         for (Menu item1 : topMenus) {//一级
             if (item1.getSubMenus() == null || item1.getSubMenus().size() == 0) {
                 continue;
@@ -152,11 +152,11 @@ public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuServic
                 }
             }
         }
-        return null;
+        return topMenus;
     }
 
     @Override
     public List<Menu> queryTopMenuOnly() {
-        return menuDao.queryAllByParentMenuIsNull();
+        return menuDao.queryAllByParentMenuIsNullOrderBySortNo();
     }
 }

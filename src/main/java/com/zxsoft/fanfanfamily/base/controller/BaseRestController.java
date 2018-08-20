@@ -15,6 +15,7 @@ public interface BaseRestController<T extends BaseEntity> {
 
     ResponseEntity<T> getById(String id);
     ResponseEntity<T> getByKey(String key);
+    ResponseEntity<T> getEntity(String id);
     ResponseEntity<Page<T>> queryPage(Pageable pageable);
     ResponseEntity<List<T>> queryAll();
 

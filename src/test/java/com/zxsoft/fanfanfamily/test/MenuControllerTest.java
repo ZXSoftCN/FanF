@@ -47,7 +47,7 @@ public class MenuControllerTest extends BaseTest {
         List<String> lstOrgCC = appPropertiesConfig.getCrossOriginLocations();
 
         //language=JSON
-        String requestBody = "{\"name\":\"工作台\",\"pathKey\":\"desk$\",\"iconName\":\"home\"}";
+        String requestBody = "{\"name\":\"工作台1\",\"pathKey\":\"desk1$\",\"iconName\":\"home\",\"status\":false}";
         RequestBuilder request;
         request = post("/api/menu/add")
                 .accept(MediaType.APPLICATION_JSON)
@@ -246,6 +246,25 @@ public class MenuControllerTest extends BaseTest {
         }
     }
     
+    @Test
+    public void queryMenuEntity() {
+        String requestBody = "{\"id\":\"cf295a3e-44d8-4485-8361-112cadd57ac9\"}";
+        RequestBuilder request;
+
+        request = post(String.format("/api/menu/getEntity"))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
     @Test
     public void queryMenu() {
         RequestBuilder request;

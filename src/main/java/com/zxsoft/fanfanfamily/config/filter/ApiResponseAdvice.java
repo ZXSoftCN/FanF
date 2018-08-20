@@ -44,13 +44,14 @@ public class ApiResponseAdvice implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
 
+        Object noNullObj = o == null ? new Object() : o;
         Object obj;
-        if (List.class.isAssignableFrom(o.getClass())) {
-            List lstObj = (List) o;
+        if (List.class.isAssignableFrom(noNullObj.getClass())) {
+            List lstObj = (List) noNullObj;
             ListWrapper wrapper = new ListWrapper(lstObj);
             obj = BodyToFanfAppData.convert(wrapper);
         } else {
-            obj = BodyToFanfAppData.convert(o);
+            obj = BodyToFanfAppData.convert(noNullObj);
         }
         return obj;
     }
