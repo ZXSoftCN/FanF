@@ -94,7 +94,10 @@ public class Menu extends SimpleEntity {
         if (getId() != null) {
             MenuDao menuDao = (MenuDao)springUtil.getBean("menuDao");
 
-            return menuDao.findAllByParentMenuEqualsOrderBySortNo(this);
+            List<Menu> lstSub = menuDao.findAllByParentMenuEqualsOrderBySortNo(this);
+            if (lstSub.size() > 0) {
+                return lstSub;
+            }
         }
         return null;
     }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -17,15 +18,19 @@ public class BodyToFanfAppData {
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
-                SerializerFeature.WriteNullListAsEmpty,
+//                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
                 SerializerFeature.DisableCircularReferenceDetect
                 };//SerializerFeature.PrettyFormat
 
         try {
+            String msg = "执行成功！";
             String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+            if (StringUtils.isEmpty(strObj) || StringUtils.isBlank(strObj)) {
+                msg = "无数据返回响应";
+            }
             if (List.class.isAssignableFrom(obj.getClass())) {
 //                JSONArray jsonArray = JSON.parseArray(strObj);
-                return FanFResponseBodyBuilder.ok("ok", obj);
+                return FanFResponseBodyBuilder.ok(msg, obj);
             }
             JSONObject jsonObj = JSON.parseObject(strObj);
             if (jsonObj.containsKey("pageable")) {
@@ -46,17 +51,17 @@ public class BodyToFanfAppData {
                     innerData.setPageSize(totalPages);
                     innerData.setTotalCount(totalCount);
                     innerData.setContents(lst);
-                    return FanFResponseBodyBuilder.ok("ok", innerData);
+                    return FanFResponseBodyBuilder.ok(msg, innerData);
                 }
             } else if (obj.getClass() == ResponseEntity.class) {
                 ResponseEntity innerT = (ResponseEntity) obj;
                 Object innerObj = innerT.getBody();
-                return FanFResponseBodyBuilder.ok("ok", innerObj);
+                return FanFResponseBodyBuilder.ok(msg, innerObj);
             } else {
-                return FanFResponseBodyBuilder.ok("ok", obj);
+                return FanFResponseBodyBuilder.ok(msg, obj);
             }
         } catch (Exception ex) {
-            return FanFResponseBodyBuilder.ok("ok", obj);
+            return FanFResponseBodyBuilder.ok("convert exception", obj);
         }
 
         return null;

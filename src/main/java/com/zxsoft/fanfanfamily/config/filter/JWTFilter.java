@@ -140,7 +140,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
                     SerializerFeature.WriteNullStringAsEmpty,
                     SerializerFeature.WriteNullNumberAsZero,
                     SerializerFeature.WriteNullBooleanAsFalse,
-                    SerializerFeature.WriteNullListAsEmpty,
+//                    SerializerFeature.WriteNullListAsEmpty,
                     SerializerFeature.DisableCircularReferenceDetect,
                     SerializerFeature.PrettyFormat};
 

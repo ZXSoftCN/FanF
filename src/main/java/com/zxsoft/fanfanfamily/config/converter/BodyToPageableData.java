@@ -14,7 +14,7 @@ public class BodyToPageableData {
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
-                SerializerFeature.WriteNullListAsEmpty,
+//                SerializerFeature.WriteNullListAsEmpty,
                 SerializerFeature.DisableCircularReferenceDetect
                 };//SerializerFeature.PrettyFormat
 
