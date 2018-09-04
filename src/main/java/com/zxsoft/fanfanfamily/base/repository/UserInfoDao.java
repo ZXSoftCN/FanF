@@ -14,6 +14,9 @@ public interface UserInfoDao extends JpaRepository<UserInfo,String> {
     @Override
     Optional<UserInfo> findById(String id);
 
+    List<UserInfo> findAllByIdIsNotNull();
+    Page<UserInfo> findAllByIdIsNotNull(Pageable pageable);
+
     Optional<UserInfo> findByUserName(String userName);
     @EntityGraph(attributePaths = { "roleList"})
     Optional<UserInfo> findFirstByUserNameContaining(String userNameLike);

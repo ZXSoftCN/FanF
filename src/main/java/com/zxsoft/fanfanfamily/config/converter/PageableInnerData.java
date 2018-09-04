@@ -14,7 +14,8 @@ import java.util.List;
 public class PageableInnerData {
     private Long totalCount;//总个数
     private Long currentPage;//当前页号
-    private Long pageSize;//当前总共有多少页，而不是每页个数
+    private Integer pageSize;//每页个数
+    private Long totalPage;//当前总共有多少页
     private JSONArray contents = new JSONArray();
 
     public Long getTotalCount() {
@@ -33,12 +34,20 @@ public class PageableInnerData {
         this.currentPage = currentPage;
     }
 
-    public Long getPageSize() {
+    public Integer getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(Long pageSize) {
+    public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Long getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(Long totalPage) {
+        this.totalPage = totalPage;
     }
 
     @JSONField(name = "list")

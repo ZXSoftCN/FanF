@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 public class BodyToPageableData {
 
     public static FanFResponseEntity convert(Object obj) {
+        JSONObject.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
         //修改配置返回内容的过滤
         SerializerFeature[] serializerFeatures = {
 //                SerializerFeature.WriteMapNullValue,
@@ -20,7 +21,8 @@ public class BodyToPageableData {
                 SerializerFeature.DisableCircularReferenceDetect
                 };//SerializerFeature.PrettyFormat
 
-        String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+        NoLazyPropertyFilter filter = new NoLazyPropertyFilter();
+        String strObj = JSON.toJSONString(obj,filter,serializerFeatures);
         JSONObject jsonObj = JSON.parseObject(strObj);
         if (jsonObj.containsKey("pageable")) {
             JSONObject jsonPage = jsonObj.getJSONObject("pageable");
@@ -37,7 +39,8 @@ public class BodyToPageableData {
                 Integer status = 1;
 
                 innerData.setCurrentPage(currentPage);
-                innerData.setPageSize(totalPages);
+                innerData.setPageSize(pageSize);
+                innerData.setTotalPage(totalPages);
                 innerData.setTotalCount(totalCount);
                 innerData.setContents(lst);
                 data.setStatus(status);

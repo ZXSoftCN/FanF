@@ -1,5 +1,7 @@
 package com.zxsoft.fanfanfamily.test;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionDTO;
@@ -11,8 +13,10 @@ import com.zxsoft.fanfanfamily.config.AppCrossOriginProperties;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -151,10 +155,22 @@ public class UserInfoControllerTest extends BaseTest {
 
     @Test
     public void queryUserInfoDao(){
-        Pageable page = PageRequest.of(0,2);
-        Optional<UserInfo> item = userInfoDao.findById("67117d84-4e15-4ac7-b704-caeed79652a9");
-        if (item.isPresent()) {
-            System.out.println(item.get().getUserName());
+        Sort sort = Sort.by("userName");
+        Pageable page = PageRequest.of(0,10,sort);
+        Page<UserInfo> item = userInfoDao.findAllByIdIsNotNull(page);
+        if (item.getSize() > 0) {
+            SerializerFeature[] serializerFeatures = {
+//                SerializerFeature.WriteMapNullValue,
+                    SerializerFeature.WriteNullStringAsEmpty,
+                    SerializerFeature.WriteNullNumberAsZero,
+                    SerializerFeature.WriteNullBooleanAsFalse,
+                    SerializerFeature.WriteEnumUsingToString,
+//                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
+                    SerializerFeature.DisableCircularReferenceDetect,
+                    SerializerFeature.PrettyFormat
+            };
+            String strObj = JSON.toJSONStringWithDateFormat(item,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+            System.out.println(strObj);
         }
     }
     
@@ -187,9 +203,9 @@ public class UserInfoControllerTest extends BaseTest {
         String userInfoId = "402881e564c015100164c0154cbe0000";
         MultiValueMap<String,String> mapValue = new LinkedMultiValueMap<>();
         mapValue.add("page","0");
-        mapValue.add("size","3");
-        mapValue.add("sort","code");
-        request = get("/api/userInfo/query")
+        mapValue.add("size","20");
+        mapValue.add("sort","userName");
+        request = get("/api/user/query")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);

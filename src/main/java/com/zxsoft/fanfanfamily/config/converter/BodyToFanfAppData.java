@@ -3,6 +3,7 @@ package com.zxsoft.fanfanfamily.config.converter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import java.util.List;
 public class BodyToFanfAppData {
 
     public static FanfAppData convert( Object obj) {
+        JSONObject.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
         //修改配置返回内容的过滤
         SerializerFeature[] serializerFeatures = {
 //                SerializerFeature.WriteMapNullValue,
@@ -20,12 +22,14 @@ public class BodyToFanfAppData {
                 SerializerFeature.WriteNullBooleanAsFalse,
                 SerializerFeature.WriteEnumUsingToString,
 //                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
-                SerializerFeature.DisableCircularReferenceDetect
+                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.WriteDateUseDateFormat,
                 };//SerializerFeature.PrettyFormat
 
-        try {
+        try {NoLazyPropertyFilter filter = new NoLazyPropertyFilter();
+            String strObj = JSON.toJSONString(obj,filter,serializerFeatures);
             String msg = "执行成功！";
-            String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+
 
             if (List.class.isAssignableFrom(obj.getClass())) {
 //                JSONArray jsonArray = JSON.parseArray(strObj);
@@ -50,9 +54,10 @@ public class BodyToFanfAppData {
                     JSONArray lst = jsonObj.getJSONArray("content");
                     Integer status = 1;
 
-                    innerData.setCurrentPage(currentPage);
-                    innerData.setPageSize(totalPages);
+                    innerData.setCurrentPage(currentPage+1);
+                    innerData.setPageSize(pageSize);
                     innerData.setTotalCount(totalCount);
+                    innerData.setTotalPage(totalPages);
                     innerData.setContents(lst);
                     return FanFResponseBodyBuilder.ok(msg, innerData);
                 }

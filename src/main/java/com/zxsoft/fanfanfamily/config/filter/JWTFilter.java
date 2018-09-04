@@ -11,10 +11,7 @@ import com.zxsoft.fanfanfamily.base.service.UserInfoService;
 import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.common.JWTUtil;
 import com.zxsoft.fanfanfamily.config.JWTToken;
-import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
-import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
-import com.zxsoft.fanfanfamily.config.converter.FanFResponseEntity;
-import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
+import com.zxsoft.fanfanfamily.config.converter.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.session.Session;
@@ -134,6 +131,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         }
         try {
             PrintWriter out = httpResponse.getWriter();
+            JSONObject.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
             SerializerFeature[] serializerFeatures = {
 //                    SerializerFeature.WriteMapNullValue,
                     SerializerFeature.WriteNullStringAsEmpty,
@@ -144,7 +142,8 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
                     SerializerFeature.DisableCircularReferenceDetect,
                     SerializerFeature.PrettyFormat};
 
-            String strObj = JSON.toJSONStringWithDateFormat(entity,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+            NoLazyPropertyFilter filter = new NoLazyPropertyFilter();
+            String strObj = JSON.toJSONString(entity,filter,serializerFeatures);
             out.append(strObj);
         } catch (IOException exception) {
             httpResponse.setStatus(401);
