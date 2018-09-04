@@ -5,14 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.zxsoft.fanfanfamily.base.domain.BaseEntity;
-import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
-import com.zxsoft.fanfanfamily.base.domain.vo.EntityIdDto;
+import com.zxsoft.fanfanfamily.base.domain.vo.EntityIdDTO;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
-import com.zxsoft.fanfanfamily.base.sys.PageableBody;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
-import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +37,7 @@ import java.util.Optional;
  */
 public abstract class BaseRestControllerImpl<T extends BaseEntity> implements BaseRestController<T> {
 
-    private Logger log = LoggerFactory.getLogger(BaseRestControllerImpl.class);
+    private Logger log = LoggerFactory.getLogger(getEntityType().getClass());
 
     public abstract BaseService<T> getBaseService();
     public abstract Class<T> getEntityType();
@@ -50,12 +47,13 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     @GetMapping(value = "/get/{id}")
     public ResponseEntity<T> getById(@PathVariable(required = false,name = "id") String id) {
         Optional<T> item = getBaseService().getById(id);
-        if (item.isPresent()) {
-            return ResponseEntity.ok(item.get());
-        } else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.ok(null);
-        }
+        return ResponseEntity.ok(item.orElse(null));
+//        if (item.isPresent()) {
+//            return ResponseEntity.ok(item.get());
+//        } else {
+//            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
+//            return ResponseEntity.ok(null);
+//        }
     }
 
     @Override
@@ -63,12 +61,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     @GetMapping(value = "/getByKey/{key}")
     public ResponseEntity<T> getByKey(@PathVariable(required = false,name = "key") String key) {
         Optional<T> item = getBaseService().getByKey(key);
-        if (item.isPresent()) {
-            return ResponseEntity.ok(item.get());
-        } else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.ok(null);
-        }
+        return ResponseEntity.ok(item.orElse(null));
     }
 
     @Override
@@ -80,15 +73,10 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
 
 //        Object obj = JSON.parse(parsingEntity, serializerFeatures);
 //        TypeReference<T> type = new TypeReference<T>() {};
-        EntityIdDto dto = JSON.parseObject(entityKey,EntityIdDto.class,serializerFeatures);
+        EntityIdDTO dto = JSON.parseObject(entityKey,EntityIdDTO.class,serializerFeatures);
         if (dto != null) {
             Optional<T> item = getBaseService().getById(dto.getId());
-            if (item.isPresent()) {
-                return ResponseEntity.ok(item.get());
-            } else {
-                //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-                return ResponseEntity.ok(null);
-            }
+            return ResponseEntity.ok(item.orElse(null));
         }
         return ResponseEntity.ok(null);
     }
@@ -117,12 +105,13 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     @PostMapping(value = "/addEntity")
     public ResponseEntity<T> addEntity(@RequestBody T t) {
         T item = getBaseService().add(t);
-        if (item != null) {
-            return ResponseEntity.ok(item);
-        }else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(item);
+//        if (item != null) {
+//            return ResponseEntity.ok(item);
+//        }else {
+//            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
+//            return ResponseEntity.badRequest().body(null);
+//        }
     }
 
     @Override
@@ -137,12 +126,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
         T t = JSON.parseObject(parsingEntity,getEntityType(),serializerFeatures);
 
         T item = getBaseService().add(t);
-        if (item != null) {
-            return ResponseEntity.ok(item);
-        }else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(item);
     }
 
     @Override
@@ -150,12 +134,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     @PostMapping("/modifyEntity")
     public ResponseEntity<T> modifyEntity(@RequestBody T t) {
         T item = getBaseService().modify(t);
-        if (item != null) {
-            return ResponseEntity.ok(item);
-        }else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(item);
     }
 
     @Override
@@ -169,12 +148,7 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
         T t = JSON.parseObject(parsingEntity,getEntityType(),serializerFeatures);
 
         T item = getBaseService().modify(t);
-        if (item != null) {
-            return ResponseEntity.ok(item);
-        }else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(item);
     }
 
     @Override
@@ -183,31 +157,33 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     public ResponseEntity<List<T>> saveBatch(@RequestBody List<T> lstEntity) {
 
         List<T> lstItem = getBaseService().saveBatch(lstEntity);
-        if (lstItem.size() > 0) {
-            return ResponseEntity.ok(lstItem);
-        }else {
-            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(lstItem);
+//        if (lstItem.size() > 0) {
+//            return ResponseEntity.ok(lstItem);
+//        }else {
+//            //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
+//            return ResponseEntity.badRequest().body(null);
+//        }
     }
 
     @Override
-    @FanfAppBody
+//    @FanfAppBody
     @PostMapping("/delete")
-    public ResponseEntity<Boolean> deleteEntity(@RequestBody String jsonId) {
+    public FanfAppData deleteEntity(@RequestBody String jsonId) {
         Boolean isDel = false;
         JSONObject jobjItem = JSON.parseObject(jsonId);
         if (!jobjItem.isEmpty() && jobjItem.containsKey("id")) {
             String idValue = jobjItem.getString("id");
             isDel = getBaseService().delete(idValue);
         }
-        return ResponseEntity.ok(isDel);
+        return isDel ?  FanFResponseBodyBuilder.ok("删除完成", isDel) : FanFResponseBodyBuilder.failure(isDel);
+//        return ResponseEntity.ok(isDel);
     }
 
     @Override
-    @FanfAppBody
+//    @FanfAppBody
     @PostMapping("/deleteBatch")
-    public ResponseEntity<Boolean> deleteBatch(@RequestBody String jsonIds) {
+    public FanfAppData deleteBatch(@RequestBody String jsonIds) {
         Boolean isDel = false;
         JSONObject jobjItem = JSON.parseObject(jsonIds);
         if (!jobjItem.isEmpty() && jobjItem.containsKey("ids")) {
@@ -217,7 +193,8 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
             }
         }
 
-        return ResponseEntity.ok(isDel);
+        return isDel ?  FanFResponseBodyBuilder.ok("删除完成", isDel) : FanFResponseBodyBuilder.failure(isDel);
+//        return ResponseEntity.ok(isDel);
     }
 
 

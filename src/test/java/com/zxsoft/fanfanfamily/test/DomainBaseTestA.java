@@ -1,7 +1,13 @@
 package com.zxsoft.fanfanfamily.test;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.Region;
+import com.zxsoft.fanfanfamily.base.domain.vo.MenuWithChildDTO;
+import com.zxsoft.fanfanfamily.base.repository.MenuDao;
+import com.zxsoft.fanfanfamily.base.repository.UserInfoDao;
 import com.zxsoft.fanfanfamily.mort.domain.vo.RegionCount;
 import com.zxsoft.fanfanfamily.mort.repository.RegionDao;
 import org.junit.Before;
@@ -38,6 +44,11 @@ public class DomainBaseTestA {
 
     @Autowired
     private RegionDao regionDao;
+    @Autowired
+    private UserInfoDao userInfoDao;
+    @Autowired
+    private MenuDao menuDao;
+
 
     @Before
     public void setupMockMvc(){
@@ -131,6 +142,48 @@ public class DomainBaseTestA {
 //            regionDao.save(itemR.get());
             regionDao.modifyLogoUrlById(String.format(item.getLogoUrl() + "/%s","modify"),item.getId());
         }
+    }
+
+    @Test
+    public void customQueryMenu() {
+        List<Menu> lst = menuDao.customQueryAllByParentMenuId("6c67708c-4c7a-4511-be63-7ac30d0f02b0");
+        List<MenuWithChildDTO> lstDTO = new ArrayList<>();
+        for (Menu item : lst) {
+            lstDTO.add(MenuWithChildDTO.convert(item));
+        }
+        SerializerFeature[] serializerFeatures = {
+//                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteNullStringAsEmpty,
+                SerializerFeature.WriteNullNumberAsZero,
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteEnumUsingToString,
+//                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
+                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.PrettyFormat
+        };
+        String strObj = JSON.toJSONStringWithDateFormat(lstDTO,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+        System.out.println(strObj);
+    }
+
+    @Test
+    public void customQueryMenuArray() {
+        List<Menu> lst = menuDao.customQuerySingleMenus();
+        List<MenuWithChildDTO> lstDTO = new ArrayList<>();
+        for (Menu item : lst) {
+            lstDTO.add(MenuWithChildDTO.convert(item));
+        }
+        SerializerFeature[] serializerFeatures = {
+//                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteNullStringAsEmpty,
+                SerializerFeature.WriteNullNumberAsZero,
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteEnumUsingToString,
+//                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
+                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.PrettyFormat
+        };
+        String strObj = JSON.toJSONStringWithDateFormat(lst,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+        System.out.println(strObj);
     }
 
 //    @Test

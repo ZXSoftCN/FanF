@@ -1,7 +1,11 @@
 package com.zxsoft.fanfanfamily.test;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.repository.MenuDao;
+import com.zxsoft.fanfanfamily.base.service.MenuService;
+import com.zxsoft.fanfanfamily.base.service.impl.MenuServiceImpl;
 import com.zxsoft.fanfanfamily.config.AppCrossOriginProperties;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import org.junit.Test;
@@ -37,7 +41,25 @@ public class MenuControllerTest extends BaseTest {
     private AppPropertiesConfig appPropertiesConfig;
     @Autowired
     private MenuDao menuDao;
+    @Autowired
+    private MenuService menuService;
 
+    @Test
+    public void testMenuQuery() {
+        List<Menu> lst = menuService.findAll();
+        SerializerFeature[] serializerFeatures = {
+//                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteNullStringAsEmpty,
+                SerializerFeature.WriteNullNumberAsZero,
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteEnumUsingToString,
+//                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
+                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.PrettyFormat
+        };
+        String strObj = JSON.toJSONStringWithDateFormat(lst,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
+        System.out.println(strObj);
+    }
 
     @Test
     @Rollback(value = true)

@@ -1,6 +1,7 @@
 package com.zxsoft.fanfanfamily.config.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -11,6 +12,7 @@ import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.common.JWTUtil;
 import com.zxsoft.fanfanfamily.config.JWTToken;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseEntity;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.apache.shiro.SecurityUtils;
@@ -90,18 +92,16 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
             try {
                 executeLogin(request, response);
             }  catch (Exception e) {
-//                response401(request, response);//此处重定向会造成循环认证。
                 return false;
             }
         } else {
-            response403(request, response);//重定向到403
             return false;
         }
         return true;
     }
 
     /*
-        isAccessAllowed返回false会触发该方法。
+        isAccessAllowed返回false执行该方法。
         父类方法，会再次调用executeLogin。如果false，则直接返回异常信息，不再进行跳转。
         override：再次调用executeLogin，异常后跳转不直接返回异常消息，返回false。
      */
@@ -111,11 +111,9 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         try {
             bIsLogin =executeLogin(request, response);
         }catch (AuthenticationException e) {
-//            response403(request, response);//重定向到403
             sendDeniedMsg(request,response,e.getMessage());//Realm认证只返回默认消息，无法定位到认证超时、无效的明细信息。
 
         } catch (Exception e) {
-//            response401(request, response);
             sendDeniedMsg(request,response,e.getMessage());
         }
         return bIsLogin;
@@ -125,6 +123,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         FanFResponseEntity entity = new FanFResponseEntity();
         entity.setStatus(0);
         entity.setMsg(String.format("认证失败：%s",msg));
+        entity.setT(new Object());
         HttpServletResponse httpResponse = WebUtils.toHttp(response);
         httpResponse.setCharacterEncoding("UTF-8");
         httpResponse.setContentType("application/json; charset=utf-8");
@@ -140,6 +139,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
                     SerializerFeature.WriteNullStringAsEmpty,
                     SerializerFeature.WriteNullNumberAsZero,
                     SerializerFeature.WriteNullBooleanAsFalse,
+                    SerializerFeature.WriteEnumUsingToString,
 //                    SerializerFeature.WriteNullListAsEmpty,
                     SerializerFeature.DisableCircularReferenceDetect,
                     SerializerFeature.PrettyFormat};
@@ -164,10 +164,12 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         httpServletResponse.setHeader("Access-control-Allow-Origin", httpServletRequest.getHeader("Origin"));
         httpServletResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
         httpServletResponse.setHeader("Access-Control-Allow-Headers", httpServletRequest.getHeader("Access-Control-Request-Headers"));
+
         // 跨域时会首先发送一个option请求，这里我们给option请求直接返回正常状态
         if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name())) {
+            httpServletResponse.setHeader("Access-Control-Allow-Credentials","true");
             httpServletResponse.setStatus(HttpStatus.OK.value());
-            return false;
+            return false;//option请求，有Response设置OK后。返回false，不再进行后续handlechain,直接返回
         }
         return super.preHandle(request, response);
     }
@@ -188,11 +190,23 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
      * 将认证失败跳转到 /403
      */
     private void response403(ServletRequest req, ServletResponse resp) {
+        PrintWriter out = null ;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) resp;
+
+        httpServletResponse.setStatus(200);
+        httpServletResponse.setCharacterEncoding("UTF-8");
+        httpServletResponse.setContentType("application/json; charset=utf-8");
         try {
-            HttpServletResponse httpServletResponse = (HttpServletResponse) resp;
-            httpServletResponse.sendRedirect("/403");
+//            httpServletResponse.sendRedirect("/403");
+            JSONObject res = new JSONObject();
+            res.put("success", "false");
+            res.put("msg", "认证失败");
+            out = httpServletResponse.getWriter();
+            out.append(res.toString());
         } catch (IOException e) {
+            e.printStackTrace();
             LOGGER.error(e.getMessage());
+            throw new AuthenticationException("------认证错误：Unauthorized-------");
         }
     }
 }

@@ -1,11 +1,10 @@
 package com.zxsoft.fanfanfamily.base.controller;
 
-import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionDTO;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
-import com.zxsoft.fanfanfamily.base.service.RoleService;
 import com.zxsoft.fanfanfamily.base.service.UserInfoService;
-import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +39,18 @@ public class UserController extends BaseRestControllerImpl<UserInfo> {
             return ResponseEntity.ok(item.get());
         } else {
             //未能查询出结果，可抛出异常。到@ExceptionHandler中进行处理
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(item.get());
         }
+    }
+
+    @RequestMapping("/userPermission")
+    @FanfAppBody
+    public ResponseEntity<UserPermissionDTO> getUserInfoPermission(@RequestParam(name = "userName",required = false) String userName) {
+//        JSON.parseObject(userName).getString("userName")
+        if (userName == null) {
+            return ResponseEntity.ok(null);
+        }
+        Optional<UserPermissionDTO> dto = userInfoService.findUserInfoPermission(userName);
+        return ResponseEntity.ok(dto.orElse(null));
     }
 }

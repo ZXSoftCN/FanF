@@ -1,8 +1,14 @@
 package com.zxsoft.fanfanfamily.base.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.zxsoft.fanfanfamily.base.controller.BaseRestControllerImpl;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -12,7 +18,10 @@ import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class BaseEntity implements Serializable {
+public abstract class BaseEntity implements Serializable,EntityPersistExpand {
+
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
     //编译时记录版本ID，用于分辨修改前后对象序列化是否相同。
     //若有修改VersionUID，则提示：序列化版本不一致异常(InvalidCastException)
     private static final long serialVersionUID = -4960932774196310290L;
@@ -23,15 +32,69 @@ public abstract class BaseEntity implements Serializable {
     private String creator;
     private String lastUpdater;
 
+    //region 实体持久化扩展处理，如设置默认值等。
+    @Transient
+    @Override
+    public String getEntityClassName() {
+        return this.getClass().getSimpleName();
+//        return "BaseEntity";
+    }
+
+    @Override
+    public void onSetDefault() {
+        createTime = lastUpdateTime = DateTime.now().toDate();
+        try {
+            Subject currSubject = SecurityUtils.getSubject();
+            if (currSubject != null) {
+                org.apache.shiro.session.Session session = currSubject.getSession();
+                if (session != null && session.getAttribute("userName") != null) {
+                    setCreator(session.getAttribute("userName").toString());
+                    setLastUpdater(session.getAttribute("userName").toString());
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(String.format("创建实体%s【ID:%s】时未能获取当前用户，错误：%s",getEntityClassName(),getId(),ex.getMessage()));
+        }
+    }
+    @Override
+    public void onPostPersist(){}
+
+    @Override
+    public void onPreUpdate() {
+        setLastUpdateTime(DateTime.now().toDate());
+        try {
+            Subject currSubject = SecurityUtils.getSubject();
+            if (currSubject != null) {
+                org.apache.shiro.session.Session session = currSubject.getSession();
+                if (session != null && session.getAttribute("userName") != null) {
+                    setLastUpdater(session.getAttribute("userName").toString());
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(String.format("更新实体%s【ID:%s】时未能获取当前用户，错误：%s",getEntityClassName(),getId(),ex.getMessage()));
+        }
+    }
+
+    @Override
+    public void onPostUpdate() {
+
+    }
+
     @PrePersist
     public void prePersist() {
-        createTime = lastUpdateTime = DateTime.now().toDate();
+        onSetDefault();
     }
 
     @PreUpdate
     public void preUpdate() {
-        lastUpdateTime = DateTime.now().toDate();
+        onPreUpdate();
     }
+
+    @PostPersist
+    public void postEntityValue() {
+        onPostPersist();
+    }
+    //endregion
 
     @Id
     @GenericGenerator(name = "generator", strategy = "org.hibernate.id.UUIDGenerator")

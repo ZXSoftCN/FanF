@@ -2,11 +2,11 @@ package com.zxsoft.fanfanfamily.test;
 
 import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionDTO;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
 import com.zxsoft.fanfanfamily.base.repository.UserInfoDao;
 import com.zxsoft.fanfanfamily.base.service.RoleService;
 import com.zxsoft.fanfanfamily.base.service.UserInfoService;
-import com.zxsoft.fanfanfamily.base.service.impl.RoleServiceImp;
-import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.config.AppCrossOriginProperties;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import org.junit.Test;
@@ -162,11 +162,11 @@ public class UserInfoControllerTest extends BaseTest {
     public void queryUserInfo() {
         RequestBuilder request;
 
-        String requestBody = "{\"userName\":\"006\"}";
+        String requestBody = "{\"userName\":\"admin\"}";
         MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
-        multiParams.add("userName","006");
+        multiParams.add("userName","admin");
 
-        String userName = "006";// "402881e564c015100164c0154cbe0000";
+        String userName = "admin";// "402881e564c015100164c0154cbe0000";
         request = post(String.format("/api/user/userinfo"))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -201,4 +201,33 @@ public class UserInfoControllerTest extends BaseTest {
             System.out.print(ex.getMessage());
         }
     }
+
+    @Test
+    public void findUserPermission() {
+        String userName = "464f7c57-d481-4417-8bc0-d8cf0a1a8e25";
+        Optional<UserPermissionDTO> dto = userInfoService.findUserInfoPermission(userName);
+        if (dto.isPresent()) {
+            System.out.println(String.format("userInfo:%s,permission",dto.get().getInner()));
+        }
+    }
+
+    @Test
+    public void findUserPermissionController() {
+        RequestBuilder request;
+        MultiValueMap<String,String> mapValue = new LinkedMultiValueMap<>();
+        mapValue.add("userName","admin");
+        request = get("/api/user/userPermission")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .params(mapValue);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+
 }

@@ -4,6 +4,9 @@ package com.zxsoft.fanfanfamily.base.service;
 import com.zxsoft.fanfanfamily.base.domain.Permission;
 import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionDTO;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionNativeDTO;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +32,6 @@ public interface UserInfoService  extends BaseService<UserInfo> {
 
     List<UserInfo> getUserInfoList(Map<String, Integer> pageParam);
 
+    List<UserPermissionNativeDTO> findUserPermission(String userName);
+    Optional<UserPermissionDTO> findUserInfoPermission(String userName);
 }

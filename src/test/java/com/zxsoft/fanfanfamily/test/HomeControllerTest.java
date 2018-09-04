@@ -28,4 +28,20 @@ public class HomeControllerTest extends BaseTest {
             System.out.print(ex.getMessage());
         }
     }
+
+    @Test
+    public void getDashboard(){
+        RequestBuilder request;
+        request = post("/api/dashboard")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
 }

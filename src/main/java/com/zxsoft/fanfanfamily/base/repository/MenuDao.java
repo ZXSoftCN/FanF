@@ -21,10 +21,21 @@ public interface MenuDao extends JpaRepository<Menu, String> {
     Page<Menu> findByNameContaining(String nameLike, Pageable page);
     List<Menu> findAllByNameContaining(String nameLike);
 
+    List<Menu> findAllByIdIsNotNullOrderBySortNo();
+    List<Menu> findAllByParentMenuIsNullOrderBySortNo();
+
+    @Query(value = "select u from Menu u order by sortNo")
+    List<Menu> customQuerySingleMenus();
+
     //扩展
     List<Menu> findAllByParentMenuEqualsOrderBySortNo(Menu menu);
 
     List<Menu> queryAllByParentMenu(String parentMenu);//根据父级菜单查子菜单
     List<Menu> queryAllByParentMenuIsNullOrderBySortNo();//顶级菜单
 
+//    List<Menu> findAllByParentMenuIdOrderBySortNo(String id);
+
+    @EntityGraph(attributePaths = { "parentMenu"})
+    @Query(value = "select u from Menu u where u.parentMenu.id = ?1 order by u.sortNo")
+    List<Menu> customQueryAllByParentMenuId(String id);
 }

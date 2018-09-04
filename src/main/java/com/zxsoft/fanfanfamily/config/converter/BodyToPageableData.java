@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.apache.commons.lang3.StringUtils;
 
 public class BodyToPageableData {
 
@@ -15,6 +16,7 @@ public class BodyToPageableData {
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
 //                SerializerFeature.WriteNullListAsEmpty,
+                SerializerFeature.WriteEnumUsingToString,
                 SerializerFeature.DisableCircularReferenceDetect
                 };//SerializerFeature.PrettyFormat
 

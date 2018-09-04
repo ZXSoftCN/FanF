@@ -23,7 +23,7 @@ public class Permission extends BaseEntity {
 //        this.id = id;
 //    }
 
-    private String id;//主键.
+//    private String id;//主键.
 
     private String name;//名称.
 

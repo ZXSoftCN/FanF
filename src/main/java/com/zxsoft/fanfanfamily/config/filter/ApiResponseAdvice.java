@@ -4,6 +4,7 @@ import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.base.sys.PageableBody;
 import com.zxsoft.fanfanfamily.config.converter.BodyToFanfAppData;
 import com.zxsoft.fanfanfamily.config.converter.BodyToPageableData;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
@@ -44,14 +45,17 @@ public class ApiResponseAdvice implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
 
-        Object noNullObj = o == null ? new Object() : o;
+        if (o == null) {
+            return FanFResponseBodyBuilder.failure(o);
+        }
+//        Object noNullObj = o == null ? new Object() : o;
         Object obj;
-        if (List.class.isAssignableFrom(noNullObj.getClass())) {
-            List lstObj = (List) noNullObj;
+        if (List.class.isAssignableFrom(o.getClass())) {
+            List lstObj = (List) o;
             ListWrapper wrapper = new ListWrapper(lstObj);
             obj = BodyToFanfAppData.convert(wrapper);
         } else {
-            obj = BodyToFanfAppData.convert(noNullObj);
+            obj = BodyToFanfAppData.convert(o);
         }
         return obj;
     }

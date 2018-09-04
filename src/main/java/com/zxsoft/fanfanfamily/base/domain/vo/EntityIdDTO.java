@@ -1,6 +1,6 @@
 package com.zxsoft.fanfanfamily.base.domain.vo;
 
-public class EntityIdDto {
+public class EntityIdDTO {
     private String id;
 
     public String getId() {

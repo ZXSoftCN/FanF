@@ -17,6 +17,12 @@ public class FanFResponseBuilder {
         return responseEntity;
     }
 
+    public static <T> ResponseEntity<T> failure(HttpHeaders headers, String token, String msg, T t) {
+        ResponseEntity<T> responseEntity = new ResponseEntity(FanFResponseEntity.error(msg,t),
+                headers, HttpStatus.OK);
+        return responseEntity;
+    }
+
     public static <T> ResponseEntity<T> error(HttpHeaders headers, String token, String msg, T t) {
         ResponseEntity<T> responseEntity = new ResponseEntity(FanFResponseEntity.error(msg,t),
                 headers, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -43,6 +49,14 @@ public class FanFResponseBuilder {
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         return error(responseHeaders,token,msg,t);
+    }
+
+    public static <T> ResponseEntity<T> failure(String token, String msg, T t) {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("token",token);
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        return failure(responseHeaders,token,msg,t);
     }
 
     public static <T> ResponseEntity<T> timeout(String token, String msg, T t) {

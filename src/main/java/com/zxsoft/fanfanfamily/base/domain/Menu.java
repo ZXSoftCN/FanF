@@ -1,18 +1,20 @@
 package com.zxsoft.fanfanfamily.base.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.zxsoft.fanfanfamily.base.repository.EntityIncreaseDao;
 import com.zxsoft.fanfanfamily.base.repository.MenuDao;
+import com.zxsoft.fanfanfamily.base.service.MenuService;
 import com.zxsoft.fanfanfamily.common.SpringUtil;
-import org.hibernate.annotations.GenericGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Table(name = "sys_Menu")
+@NamedEntityGraph(name = "Menu.lazy",
+        attributeNodes = {@NamedAttributeNode("parentMenu")})
 public class Menu extends SimpleEntity {
-    private static final long serialVersionUID = 3784575834854689037L;
+    private static final long serialVersionUID = 4536510796054836998L;
 
     private int sortNo;
     private String pathKey;//菜单路径key
@@ -20,12 +22,13 @@ public class Menu extends SimpleEntity {
     private String iconClassName;//Icon来源ClassName图标，作为IconType的补充
     private Menu parentMenu;
     private Boolean status;
+    private Boolean showMenu;
 
-    @Autowired
-    private SpringUtil springUtil;
-    private List<Menu> subMenus = new ArrayList<>();
+//    @Autowired
+//    private SpringUtil springUtil;
+//    private List<Menu> subMenus = new ArrayList<>();
 
-    @Column(name = "sortNo",columnDefinition = "int default(0)")
+    @Column(name = "sortNo",columnDefinition = "int unsigned DEFAULT 0")
     public int getSortNo() {
         return sortNo;
     }
@@ -89,22 +92,31 @@ public class Menu extends SimpleEntity {
         this.status = status;
     }
 
-    @Transient
-    public List<Menu> getSubMenus() {
-        if (getId() != null) {
-            MenuDao menuDao = (MenuDao)springUtil.getBean("menuDao");
-
-            List<Menu> lstSub = menuDao.findAllByParentMenuEqualsOrderBySortNo(this);
-            if (lstSub.size() > 0) {
-                return lstSub;
-            }
-        }
-        return null;
+    @Column(name = "showMenu",columnDefinition = "tinyint(1) DEFAULT 1")
+    public Boolean getShowMenu() {
+        return showMenu;
     }
 
-    public void setSubMenus(List<Menu> subMenus) {
-        this.subMenus = subMenus;
+    public void setShowMenu(Boolean showMenu) {
+        this.showMenu = showMenu;
     }
+
+//    @Transient
+//    public List<Menu> getSubMenus() {
+//        if (getId() != null) {
+//            MenuDao menuDao = (MenuDao)SpringUtil.getBean("menuDao");
+//
+//            List<Menu> lstSub = menuDao.findAllByParentMenuEqualsOrderBySortNo(this);
+//            if (lstSub.size() > 0) {
+//                return lstSub;
+//            }
+//        }
+//        return null;
+//    }
+//
+//    public void setSubMenus(List<Menu> subMenus) {
+//        this.subMenus = subMenus;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -112,5 +124,29 @@ public class Menu extends SimpleEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Menu menu = (Menu) o;
         return Objects.equals(getId(), menu.getId());
+    }
+
+    @Override
+    public void onSetDefault() {
+        super.onSetDefault();
+        MenuService menuService = (MenuService)SpringUtil.getBean("menuServiceImpl");
+        this.setSortNo(menuService.getNewSortNo());
+        this.setIconType("appstore-o");
+        this.setStatus(true);
+    }
+
+    @Override
+    public void onPostPersist() {
+        EntityIncreaseDao entityIncreaseDao = (EntityIncreaseDao)SpringUtil.getBean("entityIncreaseDao");
+        entityIncreaseDao.updateSortNoMax("menu",this.sortNo);
+        super.onPostPersist();
+    }
+
+    @Override
+    public String toString() {
+        if (this.getId() != null) {
+            return this.getId();
+        }
+        return super.toString();
     }
 }

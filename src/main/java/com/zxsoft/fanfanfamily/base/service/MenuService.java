@@ -1,6 +1,7 @@
 package com.zxsoft.fanfanfamily.base.service;
 
 import com.zxsoft.fanfanfamily.base.domain.Menu;
+import com.zxsoft.fanfanfamily.base.domain.vo.MenuWithChildDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,6 @@ public interface MenuService extends BaseService<Menu> {
     List<Menu> addBatchWithParent(List<Menu> menus,Menu parentMenu);
     List<Menu> addBatch(List<Menu> menus);
 
-    List<Menu> queryTopMenuAllTree();
+    List<MenuWithChildDTO> queryTopMenuAllTree();
     List<Menu> queryTopMenuOnly();
 }

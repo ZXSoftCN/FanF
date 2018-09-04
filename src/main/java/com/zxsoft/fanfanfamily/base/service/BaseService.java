@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface BaseService<T> {
 //    void initPath();
@@ -34,6 +35,15 @@ public interface BaseService<T> {
     Path uploadAvatarExtend(T t, String fileName, String postfix, byte[] bytes);
 
     //endregion
+
+    String getEntityName();
+    AtomicInteger getSortNoMax();
+    void initSortNoMax();
+    int getNewSortNo();
+    AtomicInteger getCodeNumMax();
+    void initCodeNumMax();
+    String getNewCode();
+
 
     Path storeFile(MultipartFile file);
 

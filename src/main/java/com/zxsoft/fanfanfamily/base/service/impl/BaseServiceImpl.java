@@ -2,10 +2,13 @@ package com.zxsoft.fanfanfamily.base.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.zxsoft.fanfanfamily.base.domain.EntityIncrease;
 import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
+import com.zxsoft.fanfanfamily.base.repository.EntityIncreaseDao;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.StorageException;
+import com.zxsoft.fanfanfamily.common.EntityManagerUtil;
 import com.zxsoft.fanfanfamily.config.AppPropertiesConfig;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.collections.IteratorUtils;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,11 +32,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@Service
 public abstract class BaseServiceImpl<T> implements BaseService<T> {
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -40,11 +44,18 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     protected Path rootUploadPath;
     protected Path avatarUploadPath;
     protected final String avatar = "avatar";
+    //初始化流水号
+    private final int INIT_NUM = 0;
 
     @Autowired
     protected AppPropertiesConfig appPropertiesConfig;
     @Autowired
     protected WebApplicationContext applicationContext;
+    @Autowired
+    private EntityIncreaseDao entityIncreaseDao;
+    @Autowired
+    protected EntityManagerUtil entityManagerUtil;
+
 
 
     //    @Autowired
@@ -56,6 +67,95 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 ////        initPath();
 //
 //    }
+
+
+    @Override
+    public String getEntityName() {
+        return null;
+    }
+
+    @Override
+    public AtomicInteger getSortNoMax() {
+        return null;
+    }
+
+    @Override
+    public void initSortNoMax() {
+        try{
+            if (StringUtils.isBlank(this.getEntityName()) && getSortNoMax() == null) {
+                return ;
+            }
+            Optional<Integer> sortNoMax = entityIncreaseDao.getSortNoMax(this.getEntityName());
+//            if(!sortNoMax.isPresent() || sortNoMax.get()<INIT_NUM){
+//                sortNoMax = Optional.of(INIT_NUM);
+//
+//            }
+            if(logger.isDebugEnabled()){
+                logger.debug(String.format("初始化%s序号最大值为：%d",getEntityName(),sortNoMax.orElse(INIT_NUM)));
+            }
+            getSortNoMax().set(sortNoMax.orElse(INIT_NUM));
+        }catch(Exception e){
+            logger.error(String.format("初始化获取%s序号最大值异常:%s",getEntityName(),e.getMessage()));
+        }
+    }
+
+    /**
+     * @Author  javaloveiphone
+     * @Description :获取最新分组编号
+     * @return
+     * int
+     * 注：此方法并没有使用synchronized进行同步，因为共享的编号自增操作是原子操作，线程安全的
+     */
+    @Override
+    public int getNewSortNo() {
+        //线程安全的原子操作，所以此方法无需同步
+        int newSortNo = getSortNoMax().incrementAndGet();
+        return newSortNo;
+    }
+
+    @Override
+    public AtomicInteger getCodeNumMax() {
+        return null;
+    }
+
+    @Override
+    public void initCodeNumMax() {
+        try{
+            if (StringUtils.isBlank(this.getEntityName()) && getCodeNumMax() == null) {
+                return ;
+            }
+            Optional<Integer> codeNumMax = entityIncreaseDao.getCodeNumMax(this.getEntityName());
+            if(logger.isDebugEnabled()){
+                logger.debug(String.format("初始化%s编号最大值为：%d",getEntityName(),codeNumMax.orElse(INIT_NUM)));
+            }
+            getSortNoMax().set(codeNumMax.orElse(INIT_NUM));
+        }catch(Exception e){
+            logger.error(String.format("初始化获取%s编号最大值异常:%s",getEntityName(),e.getMessage()));
+        }
+    }
+
+    @Override
+    public String getNewCode() {
+        String newCode = null;
+        Optional<EntityIncrease> itemIncrease = entityIncreaseDao.findFirstByEntityNameIgnoreCase(getEntityName());
+        if (itemIncrease.isPresent()) {
+            DateTimeFormatter df = DateTimeFormatter.ofPattern(itemIncrease.get().getDateFormat());
+            String datePart = DateTime.now().toString(itemIncrease.get().getDateFormat());
+            String prefixPart = itemIncrease.get().getPrefix();
+            int codeNumLength = itemIncrease.get().getCodeNumLength();
+            String separate = itemIncrease.get().getSeparate();
+            String maxNumPlus = "1" + StringUtils.repeat("0",codeNumLength);
+            Long maxNumLong = Long.decode(maxNumPlus) + getCodeNumMax().incrementAndGet();
+            String numPart = maxNumLong.toString().substring(1);//去除首位字符1
+            List<String> lstJoin = new ArrayList<>();
+            lstJoin.add(prefixPart);
+            lstJoin.add(datePart);
+            lstJoin.add(numPart);
+            newCode = StringUtils.join(lstJoin.iterator(),separate);
+        }
+        return newCode;
+    }
+
     public Path getDefaultAvatar() {
         return Paths.get(appPropertiesConfig.getDefaultAvatar());
     }

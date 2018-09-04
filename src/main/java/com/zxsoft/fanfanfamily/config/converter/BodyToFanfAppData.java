@@ -18,6 +18,7 @@ public class BodyToFanfAppData {
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteEnumUsingToString,
 //                SerializerFeature.WriteNullListAsEmpty,//list为null时改为[]，而非null。沿用null，方便前端展现。
                 SerializerFeature.DisableCircularReferenceDetect
                 };//SerializerFeature.PrettyFormat
@@ -25,12 +26,14 @@ public class BodyToFanfAppData {
         try {
             String msg = "执行成功！";
             String strObj = JSON.toJSONStringWithDateFormat(obj,"yyyy-MM-dd HH:mm:ss",serializerFeatures);
-            if (StringUtils.isEmpty(strObj) || StringUtils.isBlank(strObj)) {
-                msg = "无数据返回响应";
-            }
+
             if (List.class.isAssignableFrom(obj.getClass())) {
 //                JSONArray jsonArray = JSON.parseArray(strObj);
                 return FanFResponseBodyBuilder.ok(msg, obj);
+            }
+            Object simpleObj = JSON.parse(strObj);
+            if (Boolean.class.isAssignableFrom(simpleObj.getClass()) || Number.class.isAssignableFrom(simpleObj.getClass())) {
+                return FanFResponseBodyBuilder.ok(msg, simpleObj);
             }
             JSONObject jsonObj = JSON.parseObject(strObj);
             if (jsonObj.containsKey("pageable")) {

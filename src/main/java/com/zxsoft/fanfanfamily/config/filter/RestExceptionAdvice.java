@@ -35,7 +35,7 @@ public class RestExceptionAdvice {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
         String token = request.getHeader("token");
 
-        return FanFResponseBuilder.error(token,"认证失败！",exception);
+        return FanFResponseBuilder.failure(token,"认证失败！",exception);
     }
 
     @ExceptionHandler(value = AuthorizationException.class)
@@ -47,7 +47,7 @@ public class RestExceptionAdvice {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
         String token = request.getHeader("token");
 
-        return FanFResponseBuilder.error(token,"未被授权",exception);
+        return FanFResponseBuilder.failure(token,"未被授权",exception);
     }
 
     @ExceptionHandler(value = Exception.class)

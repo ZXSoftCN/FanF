@@ -24,4 +24,6 @@ public interface UserInfoDao extends JpaRepository<UserInfo,String> {
     @EntityGraph(attributePaths = { "roleList"})
     Page<UserInfo> queryUserInfosByIdNotNull(Pageable pageable);
 
+    //自定义查询
+
 }

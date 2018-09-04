@@ -97,6 +97,7 @@ public class FanfWebMvcConfig implements WebMvcConfigurer {
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteEnumUsingToString,
                 SerializerFeature.PrettyFormat
         );
         fastJsonConfig.setDateFormat(appPropertiesConfig.getFastJsonDateFormat());

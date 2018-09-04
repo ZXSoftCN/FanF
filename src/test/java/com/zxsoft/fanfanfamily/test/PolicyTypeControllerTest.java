@@ -1,9 +1,15 @@
 package com.zxsoft.fanfanfamily.test;
 
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.RequestBuilder;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,6 +58,25 @@ public class PolicyTypeControllerTest extends BaseTest {
     }
     @Test
     public void queryAll() {
+        DateTime dt =  DateTime.now();
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyMMdd");
+        String dateFormat = dt.toString("yyMMdd");
+        System.out.println(dateFormat);
+        String strPrefix = "CAS";
+        String strSequ = "-";
+        int iLength = 7;
+        String maxNumPlus = "1" + StringUtils.repeat("0",iLength);
+        int currNum = 234;
+        Long maxNumLong = Long.decode(maxNumPlus) + currNum;
+        String maxNum = maxNumLong.toString().substring(1);
+        List<String> lstJoin = new ArrayList<>();
+        lstJoin.add(strPrefix);
+        lstJoin.add(dateFormat);
+        lstJoin.add(maxNum);
+
+        String code = StringUtils.join(lstJoin.iterator(),strSequ);
+        System.out.println(code);
+
         RequestBuilder request;
         request = get("/api/policytype/queryAll")
                 .accept(MediaType.APPLICATION_JSON)

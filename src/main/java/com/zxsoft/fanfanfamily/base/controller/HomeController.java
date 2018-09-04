@@ -1,9 +1,10 @@
 package com.zxsoft.fanfanfamily.base.controller;
 
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
-import com.zxsoft.fanfanfamily.base.domain.vo.UserInfoDto;
+import com.zxsoft.fanfanfamily.base.domain.vo.Dashboard;
+import com.zxsoft.fanfanfamily.base.domain.vo.UserInfoDTO;
+import com.zxsoft.fanfanfamily.base.service.DashboardService;
 import com.zxsoft.fanfanfamily.base.service.UserInfoService;
-import com.zxsoft.fanfanfamily.base.service.impl.UserInfoServiceImpl;
 import com.zxsoft.fanfanfamily.base.sys.DecryptRequestBody;
 import com.zxsoft.fanfanfamily.base.sys.EncryptResponseBody;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
@@ -11,7 +12,6 @@ import com.zxsoft.fanfanfamily.common.AESUtil;
 import com.zxsoft.fanfanfamily.common.JWTUtil;
 import com.zxsoft.fanfanfamily.config.JWTToken;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
-import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -39,6 +39,9 @@ public class HomeController {
 
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private DashboardService dashboardService;
+
 
     @RequestMapping({"/","/index"})
     public String index(){
@@ -97,7 +100,7 @@ public class HomeController {
     //    @Log(value = "登录跟踪")
     @PostMapping("/login")
     @ResponseBody
-    public FanfAppData login(HttpServletRequest request, @RequestBody UserInfoDto userData, Map<String, Object> map) throws Exception{
+    public FanfAppData login(HttpServletRequest request, @RequestBody UserInfoDTO userData, Map<String, Object> map) throws Exception{
         System.out.println("HomeController.login()");
         // 登录失败从request中获取shiro处理的异常信息。
         // shiroLoginFailure:就是shiro异常类的全类名.
@@ -128,13 +131,13 @@ public class HomeController {
             }
 
         } catch (UnknownAccountException e) {
-            throw new Exception("UnknownAccountException -- > 账号不存在。",e.getCause());
+            throw new AuthenticationException("UnknownAccountException -- > 账号不存在。",e.getCause());
         } catch (IncorrectCredentialsException e) {
-            throw new Exception("IncorrectCredentialsException -- > 密码不正确。",e.getCause());
+            throw new AuthenticationException("IncorrectCredentialsException -- > 密码不正确。",e.getCause());
         } catch (LockedAccountException e) {
-            throw new Exception("UnknownAccountException -- > 账号已被锁定。",e.getCause());
+            throw new AuthenticationException("UnknownAccountException -- > 账号已被锁定。",e.getCause());
         } catch (AuthenticationException e) {
-            throw new Exception("UnknownAccountException -- > 账号认证错误。",e.getCause());
+            throw new AuthenticationException("UnknownAccountException -- > 账号认证错误。",e.getCause());
         }
         Session session = currentUser.getSession();
         UserInfo currUserInfo = null;
@@ -219,7 +222,7 @@ public class HomeController {
             currUserInfo = (UserInfo)currentUser.getPrincipals().getPrimaryPrincipal();
 //            strToken = JWTUtil.sign(currUserInfo.getUserName(),currUserInfo.getPassword());//生成新的token
         }
-        UserInfoDto userData = new UserInfoDto();
+        UserInfoDTO userData = new UserInfoDTO();
         userData.setUserName(currUserInfo.getUserName());
         userData.setName(currUserInfo.getName());
         userData.setToken(strToken);
@@ -276,6 +279,13 @@ public class HomeController {
         return enData;
     }
 
+    @RequestMapping("/api/dashboard")
+    @ResponseBody
+    public FanfAppData getDashboard() {
+        Dashboard item = dashboardService.fetchDashboardData();
+        return FanFResponseBodyBuilder.ok("",item);
+    }
+
     /*
         logout后重定向到内部logout，返回Json信息
      */
@@ -291,16 +301,15 @@ public class HomeController {
 
     @RequestMapping("/403")
     public String unAuthentication(HttpServletRequest request){
-        String errorMsg = request.getAttribute("error").toString();
         System.out.println("------认证错误：Unauthorized-------");
-        throw new AuthenticationException();
+        throw new AuthenticationException("------认证错误：Unauthorized-------");
 //        return "403";
     }
 
     @RequestMapping("/401")
     public String unauthorizedRole(){
         System.out.println("------没有权限-------");
-        throw new AuthorizationException();
+        throw new AuthorizationException("------没有权限-------");
 //        return "401";
     }
 }

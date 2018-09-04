@@ -2,13 +2,13 @@ package com.zxsoft.fanfanfamily.base.domain.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
-public class UserInfoDto {
+public class UserInfoDTO {
     private String userName;
     private String name;
     private String password;
     private String token;
 
-    @JSONField(name = "ticket",alternateNames = {"ticket","userName","username"})
+    @JSONField(alternateNames = {"ticket","userName","username"})
     public String getUserName() {
         return userName;
     }

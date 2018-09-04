@@ -2,6 +2,7 @@ package com.zxsoft.fanfanfamily.base.controller;
 
 import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.Organization;
+import com.zxsoft.fanfanfamily.base.domain.vo.MenuWithChildDTO;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.MenuService;
 import com.zxsoft.fanfanfamily.base.service.OrganizationService;
@@ -74,9 +75,9 @@ public class MenuController extends BaseRestControllerImpl<Menu> {
 
     @RequestMapping("/queryTopMenuAllTree")
     @FanfAppBody
-    public ResponseEntity<List<Menu>> queryTopMenuAllTree() {
+    public ResponseEntity<List<MenuWithChildDTO>> queryTopMenuAllTree() {
 
-        List<Menu> lstMenu = menuService.queryTopMenuAllTree();
+        List<MenuWithChildDTO> lstMenu = menuService.queryTopMenuAllTree();
 
         if (lstMenu != null) {
             return ResponseEntity.ok(lstMenu);
