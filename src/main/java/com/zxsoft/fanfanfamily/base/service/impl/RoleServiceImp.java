@@ -28,7 +28,7 @@ public class RoleServiceImp extends BaseServiceImpl<Role> implements RoleService
     }
 
     @Override
-    public Path uploadAvatarExtend(Role role, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(Role role, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -38,7 +38,7 @@ public class RoleServiceImp extends BaseServiceImpl<Role> implements RoleService
     }
 
     @Override
-    public Path uploadAvatarExtend(Role role, MultipartFile file) {
+    public String uploadAvatarExtend(Role role, MultipartFile file) {
         return null;
     }
 

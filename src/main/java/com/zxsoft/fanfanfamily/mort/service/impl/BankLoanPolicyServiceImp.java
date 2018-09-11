@@ -25,7 +25,7 @@ public class BankLoanPolicyServiceImp extends BaseServiceImpl<BankLoanPolicy> im
     }
 
     @Override
-    public Path uploadAvatarExtend(BankLoanPolicy organization, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(BankLoanPolicy organization, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -35,7 +35,7 @@ public class BankLoanPolicyServiceImp extends BaseServiceImpl<BankLoanPolicy> im
     }
 
     @Override
-    public Path uploadAvatarExtend(BankLoanPolicy organization, MultipartFile file) {
+    public String uploadAvatarExtend(BankLoanPolicy organization, MultipartFile file) {
         return null;
     }
 }

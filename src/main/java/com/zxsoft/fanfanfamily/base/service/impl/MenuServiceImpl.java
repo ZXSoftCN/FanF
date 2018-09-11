@@ -83,12 +83,12 @@ public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuServic
     }
 
     @Override
-    public Path uploadAvatarExtend(Menu menu, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(Menu menu, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
     @Override
-    public Path uploadAvatarExtend(Menu menu, MultipartFile file) {
+    public String uploadAvatarExtend(Menu menu, MultipartFile file) {
         return null;
     }
 

@@ -27,7 +27,7 @@ public class OrganizationServiceImp extends BaseServiceImpl<Organization> implem
     }
 
     @Override
-    public Path uploadAvatarExtend(Organization organization, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(Organization organization, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -37,7 +37,7 @@ public class OrganizationServiceImp extends BaseServiceImpl<Organization> implem
     }
 
     @Override
-    public Path uploadAvatarExtend(Organization organization, MultipartFile file) {
+    public String uploadAvatarExtend(Organization organization, MultipartFile file) {
         return null;
     }
 }

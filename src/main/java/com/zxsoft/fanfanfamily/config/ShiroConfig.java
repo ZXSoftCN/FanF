@@ -65,6 +65,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/gifCode", "anon");
         filterChainDefinitionMap.put("/loginByToken", "anon");
         filterChainDefinitionMap.put("/logout", "anon");//系统原设定为logout
+        filterChainDefinitionMap.put("/uploads/**", "anon");
+
         filterChainDefinitionMap.put("/", "anon");
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/login", "anon");//登录，匿名

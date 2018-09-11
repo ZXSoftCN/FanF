@@ -14,6 +14,7 @@ import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +42,9 @@ import java.util.Optional;
 public abstract class BaseRestControllerImpl<T extends BaseEntity> implements BaseRestController<T> {
 
     private Logger log = LoggerFactory.getLogger(getEntityType().getClass());
+    @Autowired
+    protected HttpServletRequest httpServletRequest;
+
 
     public abstract BaseService<T> getBaseService();
     public abstract Class<T> getEntityType();
@@ -210,12 +216,12 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
 
     @Override
     @FanfAppBody
-    @PostMapping(value = "/updateAvatar",consumes = "multipart/form-data")
-    public ResponseEntity<Path> uploadAvatar(@RequestParam(value = "id",required = true) String id,
+    @PostMapping(value = "/uploadAvatar",consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadAvatar(@RequestParam(value = "id",required = true) String id,
                              @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
                              @RequestParam(value = "postfix",required = true) String postfix,
                              @RequestBody(required = true) byte[] bytes) {
-        Path path =null;
+        String path =null;
         Optional<T> item = getBaseService().getById(id);
         if (item.isPresent()) {
             path = getBaseService().uploadAvatarExtend(item.get(),fileName,postfix,bytes);

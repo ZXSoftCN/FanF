@@ -30,7 +30,7 @@ public class PolicyTypeServiceImp extends BaseServiceImpl<PolicyType> implements
     }
 
     @Override
-    public Path uploadAvatarExtend(PolicyType policyType, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(PolicyType policyType, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -40,7 +40,7 @@ public class PolicyTypeServiceImp extends BaseServiceImpl<PolicyType> implements
     }
 
     @Override
-    public Path uploadAvatarExtend(PolicyType policyType, MultipartFile file) {
+    public String uploadAvatarExtend(PolicyType policyType, MultipartFile file) {
         return null;
     }
 }

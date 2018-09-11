@@ -34,12 +34,12 @@ public class EntityIncreaseServiceImpl extends BaseServiceImpl<EntityIncrease> i
     }
 
     @Override
-    public Path uploadAvatarExtend(EntityIncrease entityIncrease, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(EntityIncrease entityIncrease, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
     @Override
-    public Path uploadAvatarExtend(EntityIncrease entityIncrease, MultipartFile file) {
+    public String uploadAvatarExtend(EntityIncrease entityIncrease, MultipartFile file) {
         return null;
     }
 

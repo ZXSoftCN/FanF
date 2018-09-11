@@ -23,7 +23,7 @@ public class BankServiceImpl extends BaseServiceImpl<Bank> implements BankServic
     private BankDao bankDao;
 
     //<editor-fold desc="私有方法">
-    private void modifyIcon(Bank bank, Path path) {
+    private void modifyIcon(Bank bank, String path) {
         try {
             String strOld = bank.getIconUrl();
             if (bank.getIconUrl().startsWith("file:/")) {
@@ -32,7 +32,7 @@ public class BankServiceImpl extends BaseServiceImpl<Bank> implements BankServic
             Path pathOld = Paths.get(strOld);
             Files.deleteIfExists(pathOld);
 
-            bank.setIconUrl(path.toString());
+            bank.setIconUrl(path);
             bankDao.save(bank);
         }catch (IOException ex){
             logger.error(String.format("%s Failed to store file:%s.%s",
@@ -55,8 +55,8 @@ public class BankServiceImpl extends BaseServiceImpl<Bank> implements BankServic
     }
 
     @Override
-    public Path uploadAvatarExtend(Bank bank, String fileName, String postfix, byte[] bytes) {
-        Path itemNew = uploadAvatar(fileName,postfix, bytes);
+    public String uploadAvatarExtend(Bank bank, String fileName, String postfix, byte[] bytes) {
+        String itemNew = uploadAvatar(fileName,postfix, bytes);
         if (itemNew == null) {
             return null;
         }
@@ -73,8 +73,8 @@ public class BankServiceImpl extends BaseServiceImpl<Bank> implements BankServic
     }
 
     @Override
-    public Path uploadAvatarExtend(Bank bank, MultipartFile file) {
-        Path itemNew = uploadAvatar(file);
+    public String uploadAvatarExtend(Bank bank, MultipartFile file) {
+        String itemNew = uploadAvatar(file);
         if (itemNew == null) {
             return null;
         }

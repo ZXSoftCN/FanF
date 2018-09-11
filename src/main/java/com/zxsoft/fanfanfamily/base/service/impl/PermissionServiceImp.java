@@ -23,7 +23,7 @@ public class PermissionServiceImp extends BaseServiceImpl<Permission> implements
     }
 
     @Override
-    public Path uploadAvatarExtend(Permission permission, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(Permission permission, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -33,7 +33,7 @@ public class PermissionServiceImp extends BaseServiceImpl<Permission> implements
     }
 
     @Override
-    public Path uploadAvatarExtend(Permission permission, MultipartFile file) {
+    public String uploadAvatarExtend(Permission permission, MultipartFile file) {
         return null;
     }
 }

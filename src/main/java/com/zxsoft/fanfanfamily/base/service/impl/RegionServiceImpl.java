@@ -37,7 +37,7 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
 //    }
 
     //<editor-fold desc="私有方法">
-    private void modifyIcon(Region region, Path path) {
+    private void modifyIcon(Region region, String path) {
         try {
             String strOld = region.getLogoUrl();
             if (region.getLogoUrl().startsWith("file:/")) {
@@ -46,7 +46,7 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
             Path pathOld = Paths.get(strOld);
             Files.deleteIfExists(pathOld);
 
-            region.setLogoUrl(path.toString());
+            region.setLogoUrl(path);
             regionDao.save(region);
         }catch (IOException ex){
             logger.error(String.format("%s Failed to store file:%s.%s",
@@ -282,8 +282,8 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     }
 
     @Override
-    public Path uploadAvatarExtend(Region region, String fileName, String postfix, byte[] bytes) {
-        Path itemNew = uploadAvatar(fileName,postfix, bytes);
+    public String uploadAvatarExtend(Region region, String fileName, String postfix, byte[] bytes) {
+        String itemNew = uploadAvatar(fileName,postfix, bytes);
         if (itemNew == null) {
             return null;
         }
@@ -294,8 +294,8 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     }
 
     @Override
-    public Path uploadAvatarExtend(Region region, MultipartFile file) {
-        Path itemNew = uploadAvatar(file);
+    public String uploadAvatarExtend(Region region, MultipartFile file) {
+        String itemNew = uploadAvatar(file);
         if (itemNew == null) {
             return null;
         }

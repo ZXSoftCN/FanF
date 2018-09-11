@@ -28,6 +28,6 @@ public interface BaseRestController<T extends BaseEntity> {
     FanfAppData deleteEntity(String jsonId);
     FanfAppData deleteBatch(String jsonIds);
 
-    ResponseEntity<Path> uploadAvatar(String id,String fileName,String postfix, byte[] bytes);//以byte[]方式上传头像、图标
+    ResponseEntity<String> uploadAvatar(String id,String fileName,String postfix, byte[] bytes);//以byte[]方式上传头像、图标
     ResponseEntity<Path> loadAvatar(String id,AvatorLoadFactor factor);
 }

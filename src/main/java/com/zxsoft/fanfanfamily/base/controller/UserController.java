@@ -6,6 +6,7 @@ import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.UserInfoService;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServlet;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
@@ -63,8 +68,8 @@ public class UserController extends BaseRestControllerImpl<UserInfo> {
     @FanfAppBody
     @RequestMapping(value = "/queryParams")
     public ResponseEntity<Page<UserInfo>> queryPageParams(@PageableDefault(size = 15,page = 0,sort = "userName",direction = Sort.Direction.ASC)
-                                                                      Pageable pageable,@RequestParam(name = "userName", required = false,defaultValue = "") String userName,
-                                                          @RequestParam(name = "createTime", required = false) String[] arrCreateTime) {
+                                                                      Pageable pageable,@RequestParam(name = "userNameQuery", required = false,defaultValue = "") String userName,
+                                                          @RequestParam(name = "createTimeQuery", required = false) String[] arrCreateTime) {
         /*DateTime[] createTimes = new DateTime[arrCreateTime.length];
         for (int i = 0; i < arrCreateTime.length; i++) {
             createTimes[i] = DateTime.parse(arrCreateTime[i]);
@@ -76,5 +81,27 @@ public class UserController extends BaseRestControllerImpl<UserInfo> {
         Page<UserInfo> pageColl = userInfoService.findUserInfoByCreateTime(userName,arrCreateTime,pageable);
 
         return ResponseEntity.ok(pageColl);
+    }
+
+    @FanfAppBody
+    @PostMapping(value = "/upload",consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadAvatar(@RequestParam("avatar") MultipartFile file) {
+        String strRlt=null;
+//        Optional<T> item = getBaseService().getById(id);
+
+        String path = userInfoService.uploadAvatar(file);
+        if (path != null) {
+            String strHeaderURL = StringUtils.replace(httpServletRequest.getRequestURL().toString(),httpServletRequest.getRequestURI(),"");
+            strRlt = StringUtils.join(strHeaderURL,"/",path);
+            return ResponseEntity.ok().body(strRlt);
+        }
+
+//        if (item.isPresent()) {
+//            path = userInfoService.uploadAvatar(file);
+//            if (path != null) {
+//                return ResponseEntity.ok().body(path);
+//            }
+//        }
+        return ResponseEntity.badRequest().body(null);
     }
 }

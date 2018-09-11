@@ -32,7 +32,7 @@ public interface BaseService<T> {
     List<T> saveBatch(List<T> collT);
     Boolean delete(String id);
     Boolean deleteBatch(List<String> ids);
-    Path uploadAvatarExtend(T t, String fileName, String postfix, byte[] bytes);
+    String uploadAvatarExtend(T t, String fileName, String postfix, byte[] bytes);
 
     //endregion
 
@@ -47,10 +47,10 @@ public interface BaseService<T> {
 
     Path storeFile(MultipartFile file);
 
-    Path uploadAvatar(MultipartFile file);//以MultipartFile方式上传头像、图标
-    Path uploadAvatar(String fileName,String postfix,byte[] bytes);//以字节数组上传头像、图标
-    Path uploadAvatar(String fileName,byte[] bytes);//以字节数组上传头像、图标
-    Path uploadAvatarExtend(T t, MultipartFile file);
+    String uploadAvatar(MultipartFile file);//以MultipartFile方式上传头像、图标
+    String uploadAvatar(String fileName,String postfix,byte[] bytes);//以字节数组上传头像、图标
+    String uploadAvatar(String fileName,byte[] bytes);//以字节数组上传头像、图标
+    String uploadAvatarExtend(T t, MultipartFile file);
 
     Resource downloadResource(String url);
 

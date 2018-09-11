@@ -36,6 +36,7 @@ import java.util.*;
 @Service("userInfoService")
 public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements UserInfoService {
 
+    private final String resPathName = "userInfo";
     @Autowired
     private UserInfoDao userInfoDao;
 
@@ -44,10 +45,15 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         return userInfoDao;
     }
 
-
+    @Override
+    protected void initPath() {
+        super.initPath();
+        rootUploadPath = super.getPath().resolve(resPathName);
+        avatarUploadPath = super.getPath().resolve(super.avatar);
+    }
 
     //<editor-fold desc="私有方法">
-    private void modifyIcon(UserInfo userInfo, Path path) {
+    private void modifyIcon(UserInfo userInfo, String path) {
         try {
             String strOld = userInfo.getIconUrl();
             if (strOld != null && !strOld.isEmpty()) {
@@ -57,7 +63,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
                 Path pathOld = Paths.get(strOld);
                 Files.deleteIfExists(pathOld);
             }
-            userInfo.setIconUrl(path.toString());
+            userInfo.setIconUrl(path);
             userInfoDao.save(userInfo);
         }catch (IOException ex){
             logger.error(String.format("%s Failed to store file:%s.%s",
@@ -66,7 +72,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
     }
     
     @Override
-    public Path uploadAvatarExtend(UserInfo userInfo, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(UserInfo userInfo, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -78,8 +84,8 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
     }
 
     @Override
-    public Path uploadAvatarExtend(UserInfo userInfo, MultipartFile file) {
-        Path itemNew = uploadAvatar(file);
+    public String uploadAvatarExtend(UserInfo userInfo, MultipartFile file) {
+        String itemNew = uploadAvatar(file);
         if (itemNew == null) {
             return null;
         }

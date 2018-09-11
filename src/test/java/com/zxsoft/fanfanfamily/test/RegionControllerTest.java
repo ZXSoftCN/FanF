@@ -108,7 +108,7 @@ public class RegionControllerTest extends BaseTest {
         multiParams.add("regionId","14dec53b-76fe-44b1-a89f-6d1bed16f341");
         multiParams.add("postfix","png");//附件后缀
 
-        request = post("/api/region/updateAvatar")
+        request = post("/api/region/uploadAvatar")
 //                .accept(MediaType.MULTIPART_FORM_DATA)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .content(Files.readAllBytes(uploadFile))

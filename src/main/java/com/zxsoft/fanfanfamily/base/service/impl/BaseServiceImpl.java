@@ -26,7 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -56,8 +58,6 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     @Autowired
     protected EntityManagerUtil entityManagerUtil;
 
-
-
     //    @Autowired
 //    public BaseServiceImpl(ApplicalitionProperties applicalitionProperties){
 //        this.rootUploadPath = Paths.get(applicalitionProperties.getUploadPath());
@@ -76,6 +76,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 
     @Override
     public AtomicInteger getSortNoMax() {
+
         return null;
     }
 
@@ -157,7 +158,12 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     public Path getDefaultAvatar() {
-        return Paths.get(appPropertiesConfig.getDefaultAvatar());
+        String strClasses = applicationContext.getClassLoader().getResource("").getPath().substring(1);
+        return Paths.get(String.format("%s/%s",strClasses,appPropertiesConfig.getDefaultAvatar()));
+    }
+
+    protected String getClassesPath(){
+        return applicationContext.getClassLoader().getResource("").getPath().substring(1);
     }
 
     @Override
@@ -166,9 +172,10 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     //构造函数执行时applicalitionProperties还未装配完成。
     //装配动作是在构造完成之后进行
     protected void initPath() {
-        this.origUploadPath = Paths.get(appPropertiesConfig.getUploadPath());
-        this.rootUploadPath = Paths.get(appPropertiesConfig.getUploadPath());
-        this.avatarUploadPath = Paths.get(appPropertiesConfig.getUploadPath());
+
+        this.origUploadPath = Paths.get(String.format("%s/%s",getClassesPath(),appPropertiesConfig.getUploadPath()));
+        this.rootUploadPath = Paths.get(String.format("%s/%s",getClassesPath(),appPropertiesConfig.getUploadPath()));
+        this.avatarUploadPath = Paths.get(String.format("%s/%s",getClassesPath(),appPropertiesConfig.getUploadPath()));
     }
 
     @Override
@@ -301,12 +308,35 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public Path uploadAvatar( MultipartFile file) {
-        return null;
+    public String uploadAvatar( MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                throw new StorageException("Failed to store empty file " + file.getOriginalFilename());
+            }
+            String postfix =  StringUtils.substringAfter(file.getOriginalFilename(),".");
+
+            //按日期+随机数生成新文件名
+            String currDate = DateTime.now().toString(appPropertiesConfig.getAppShortDateFormat());
+            String newFileName = String.format("%s%d.%s",currDate,
+                    appPropertiesConfig.getRandomInt(),postfix);
+            Path itemNew = getAvatarPath().resolve(newFileName);
+            while (Files.exists(itemNew)) {
+                newFileName = String.format("%s%d.%s",currDate,
+                        appPropertiesConfig.getRandomInt(),postfix);
+                itemNew = getAvatarPath().resolve(newFileName);
+            }
+            Files.copy(file.getInputStream(), itemNew,StandardCopyOption.REPLACE_EXISTING);
+            String strOppoPath = StringUtils.replace(itemNew.toString().replace("\\","/"),getClassesPath(),"");
+            return strOppoPath;
+//            return itemNew;
+
+        } catch (IOException e) {
+            throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
+        }
     }
 
     @Override
-    public Path uploadAvatar(String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatar(String fileName, String postfix, byte[] bytes) {
 
         try{
 //            File destFile = new File(destPath.toString());
@@ -327,7 +357,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
             Files.createFile(itemNew);
             Files.write(itemNew,bytes,options);
 
-            return itemNew;
+            return itemNew.toString();
         }catch (IOException ex){
             logger.error(String.format("%s Failed to store file:%s.%s",
                     this.getClass().getName(),ex.getMessage(), System.lineSeparator()));//System.lineSeparator()换行符
@@ -339,7 +369,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     *解析文件名获取后缀名
      */
     @Override
-    public Path uploadAvatar(String fileName, byte[] bytes) {
+    public String uploadAvatar(String fileName, byte[] bytes) {
         String pos = StringUtils.substringAfterLast(fileName,".");
         return uploadAvatar(fileName,pos,bytes);
     }

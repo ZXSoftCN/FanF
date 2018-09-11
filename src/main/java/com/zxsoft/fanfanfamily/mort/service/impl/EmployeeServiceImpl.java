@@ -30,7 +30,7 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
 
 
     //<editor-fold desc="私有方法">
-    private void modifyIcon(Employee employee, Path path) {
+    private void modifyIcon(Employee employee, String path) {
         try {
             String strOld = employee.getIconUrl();
             if (strOld != null && !strOld.isEmpty()) {
@@ -40,7 +40,7 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
                 Path pathOld = Paths.get(strOld);
                 Files.deleteIfExists(pathOld);
             }
-            employee.setIconUrl(path.toString());
+            employee.setIconUrl(path);
             employeeDao.save(employee);
         }catch (IOException ex){
             logger.error(String.format("%s Failed to store file:%s.%s",
@@ -63,8 +63,8 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
     }
 
     @Override
-    public Path uploadAvatarExtend(Employee employee, String fileName, String postfix, byte[] bytes) {
-        Path itemNew = uploadAvatar(fileName,postfix,bytes);
+    public String uploadAvatarExtend(Employee employee, String fileName, String postfix, byte[] bytes) {
+        String itemNew = uploadAvatar(fileName,postfix,bytes);
         if (itemNew == null) {
             return null;
         }
@@ -81,8 +81,8 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements Em
     }
 
     @Override
-    public Path uploadAvatarExtend(Employee employee, MultipartFile file) {
-        Path itemNew = uploadAvatar(file);
+    public String uploadAvatarExtend(Employee employee, MultipartFile file) {
+        String itemNew = uploadAvatar(file);
         if (itemNew == null) {
             return null;
         }

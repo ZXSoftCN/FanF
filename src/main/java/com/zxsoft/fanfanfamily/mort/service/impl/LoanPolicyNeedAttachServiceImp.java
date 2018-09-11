@@ -25,7 +25,7 @@ public class LoanPolicyNeedAttachServiceImp extends BaseServiceImpl<LoanPolicyNe
     }
 
     @Override
-    public Path uploadAvatarExtend(LoanPolicyNeedAttach organization, String fileName, String postfix, byte[] bytes) {
+    public String uploadAvatarExtend(LoanPolicyNeedAttach organization, String fileName, String postfix, byte[] bytes) {
         return null;
     }
 
@@ -35,7 +35,7 @@ public class LoanPolicyNeedAttachServiceImp extends BaseServiceImpl<LoanPolicyNe
     }
 
     @Override
-    public Path uploadAvatarExtend(LoanPolicyNeedAttach organization, MultipartFile file) {
+    public String uploadAvatarExtend(LoanPolicyNeedAttach organization, MultipartFile file) {
         return null;
     }
 }
