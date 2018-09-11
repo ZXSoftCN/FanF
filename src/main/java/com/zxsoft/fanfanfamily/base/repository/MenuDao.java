@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ public interface MenuDao extends JpaRepository<Menu, String> {
 
     List<Menu> findAllByIdIsNotNullOrderBySortNo();
     List<Menu> findAllByParentMenuIsNullOrderBySortNo();
+
+    Page<Menu> findAllByNameContainingAndCreateTimeAfterAndCreateTimeBefore(String name, Date startTime, Date endTime, Pageable pageable);
 
     @Query(value = "select u from Menu u order by sortNo")
     List<Menu> customQuerySingleMenus();

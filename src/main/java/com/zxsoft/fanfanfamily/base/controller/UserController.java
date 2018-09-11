@@ -6,11 +6,17 @@ import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.UserInfoService;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/api/user")
@@ -52,5 +58,23 @@ public class UserController extends BaseRestControllerImpl<UserInfo> {
         }
         Optional<UserPermissionDTO> dto = userInfoService.findUserInfoPermission(userName);
         return ResponseEntity.ok(dto.orElse(null));
+    }
+
+    @FanfAppBody
+    @RequestMapping(value = "/queryParams")
+    public ResponseEntity<Page<UserInfo>> queryPageParams(@PageableDefault(size = 15,page = 0,sort = "userName",direction = Sort.Direction.ASC)
+                                                                      Pageable pageable,@RequestParam(name = "userName", required = false,defaultValue = "") String userName,
+                                                          @RequestParam(name = "createTime", required = false) String[] arrCreateTime) {
+        /*DateTime[] createTimes = new DateTime[arrCreateTime.length];
+        for (int i = 0; i < arrCreateTime.length; i++) {
+            createTimes[i] = DateTime.parse(arrCreateTime[i]);
+        }*/
+        //请求页码默认以第1页开始，所以除了录入0页码时，均向前翻一页。
+        if (pageable.getPageNumber() > 0) {
+            pageable = pageable.previousOrFirst();
+        }
+        Page<UserInfo> pageColl = userInfoService.findUserInfoByCreateTime(userName,arrCreateTime,pageable);
+
+        return ResponseEntity.ok(pageColl);
     }
 }

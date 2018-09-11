@@ -32,10 +32,10 @@ public class RestExceptionAdvice {
     public ResponseEntity<FanFResponseException> handleException(AuthenticationException e){
         FanFResponseException exception = new FanFResponseException(HttpStatus.FORBIDDEN,HttpStatus.FORBIDDEN.value(),
                 String.format("认证失败：%s", e.getMessage()));
-        HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
-        String token = request.getHeader("token");
+//        HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
+//        String token = request.getHeader("token");
 
-        return FanFResponseBuilder.failure(token,"认证失败！",exception);
+        return FanFResponseBuilder.failure("认证失败！",exception);
     }
 
     @ExceptionHandler(value = AuthorizationException.class)
@@ -44,10 +44,7 @@ public class RestExceptionAdvice {
 
         FanFResponseException exception = new FanFResponseException(HttpStatus.FORBIDDEN,HttpStatus.FORBIDDEN.value(),
                 String.format("未被授权：%s", e.getMessage()));
-        HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
-        String token = request.getHeader("token");
-
-        return FanFResponseBuilder.failure(token,"未被授权",exception);
+        return FanFResponseBuilder.failure("未被授权",exception);
     }
 
     @ExceptionHandler(value = Exception.class)
@@ -56,10 +53,8 @@ public class RestExceptionAdvice {
         FanFResponseException exception = new FanFResponseException(HttpStatus.INTERNAL_SERVER_ERROR,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 String.format("ExceptionMsg:%s",e.getMessage()));
-        HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
-        String token = request.getHeader("token");
 
-        return FanFResponseBuilder.error(token,String.format("HttpStatus:%d,ExceptionMsg:%s",HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        return FanFResponseBuilder.error(String.format("HttpStatus:%d,ExceptionMsg:%s",HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 e.getMessage()),exception);
     }
 }

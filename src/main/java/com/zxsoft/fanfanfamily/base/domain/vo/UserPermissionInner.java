@@ -10,7 +10,7 @@ public class UserPermissionInner {
     private String id;
     private String name;
     private String userName;
-    private int state;
+    private boolean state;
 
     private List<Permission> permissions = new ArrayList<>();
 
@@ -38,11 +38,11 @@ public class UserPermissionInner {
         this.userName = userName;
     }
 
-    public int getState() {
+    public boolean getState() {
         return state;
     }
 
-    public void setState(int state) {
+    public void setState(boolean state) {
         this.state = state;
     }
 

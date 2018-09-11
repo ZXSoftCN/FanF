@@ -5,6 +5,7 @@ import com.zxsoft.fanfanfamily.base.sys.PageableBody;
 import com.zxsoft.fanfanfamily.config.converter.BodyToFanfAppData;
 import com.zxsoft.fanfanfamily.config.converter.BodyToPageableData;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
@@ -45,6 +46,9 @@ public class ApiResponseAdvice implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
 
+        if (o instanceof FanFResponseEntity) {
+            return o;
+        }
         if (o == null) {
             return FanFResponseBodyBuilder.failure(o);
         }

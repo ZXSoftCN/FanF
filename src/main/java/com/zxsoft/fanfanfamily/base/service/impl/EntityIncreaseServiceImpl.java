@@ -5,12 +5,15 @@ import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.repository.EntityIncreaseDao;
 import com.zxsoft.fanfanfamily.base.service.EntityIncreaseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -54,5 +57,11 @@ public class EntityIncreaseServiceImpl extends BaseServiceImpl<EntityIncrease> i
     @Override
     public int getSortNoMaxPlus(EntityIncrease t) {
         return 0;
+    }
+
+    @Override
+    public Page<EntityIncrease> findEntityIncreaseByName(String name, Pageable pageable) {
+        Page<EntityIncrease> infos = entityIncreaseDao.findEntityIncreaseByNameContaining(name,  pageable);
+        return infos;
     }
 }

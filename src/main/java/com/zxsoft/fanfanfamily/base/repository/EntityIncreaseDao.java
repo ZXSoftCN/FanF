@@ -1,6 +1,8 @@
 package com.zxsoft.fanfanfamily.base.repository;
 
 import com.zxsoft.fanfanfamily.base.domain.EntityIncrease;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +23,8 @@ public interface EntityIncreaseDao extends JpaRepository<EntityIncrease,String> 
 
     Optional<EntityIncrease> findFirstByEntityNameEquals(String entityName);
     Optional<EntityIncrease> findFirstByEntityNameIgnoreCase(String entityName);
+
+    Page<EntityIncrease> findEntityIncreaseByNameContaining(String name, Pageable pageable);
 
     @Query("select max(u.sortNoMax) from EntityIncrease u where upper(u.entityName) = upper(?1) ")
     Optional<Integer> getSortNoMax(String entityName);

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.zxsoft.fanfanfamily.base.domain.EntityIncrease;
+import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.vo.EntityIdDTO;
 import com.zxsoft.fanfanfamily.base.service.EntityIncreaseService;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 编码规则
+ */
 @RestController
 @RequestMapping(value = "/api/entityIncrease")
 public class EntityIncreaseController {
@@ -195,4 +199,17 @@ public class EntityIncreaseController {
         return ResponseEntity.ok(isDel);
     }
 
+    @FanfAppBody
+    @RequestMapping(value = "/queryParams")
+    public ResponseEntity<Page<EntityIncrease>> queryPageParams(@PageableDefault(size = 15,page = 0,sort = "entityName",direction = Sort.Direction.ASC)
+                                                              Pageable pageable, @RequestParam(name = "name", required = false,defaultValue = "") String name) {
+
+        //请求页码默认以第1页开始，所以除了录入0页码时，均向前翻一页。
+        if (pageable.getPageNumber() > 0) {
+            pageable = pageable.previousOrFirst();
+        }
+        Page<EntityIncrease> pageColl = entityIncreaseService.findEntityIncreaseByName(name,pageable);
+
+        return ResponseEntity.ok(pageColl);
+    }
 }

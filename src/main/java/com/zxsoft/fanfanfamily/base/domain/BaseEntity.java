@@ -96,6 +96,11 @@ public abstract class BaseEntity implements Serializable,EntityPersistExpand {
     }
     //endregion
 
+    @PostUpdate
+    public void postUpdate() {
+        onPostUpdate();
+    }
+
     @Id
     @GenericGenerator(name = "generator", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "generator")
@@ -109,7 +114,7 @@ public abstract class BaseEntity implements Serializable,EntityPersistExpand {
     }
 
 
-    @JSONField(serialize = false)
+//    @JSONField(serialize = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss" )
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_time",updatable = false)
@@ -121,7 +126,7 @@ public abstract class BaseEntity implements Serializable,EntityPersistExpand {
         this.createTime = createTime;
     }
 
-    @JSONField(serialize = false)
+//    @JSONField(serialize = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss" )
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "lastUpdate_Time")
@@ -133,7 +138,7 @@ public abstract class BaseEntity implements Serializable,EntityPersistExpand {
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    @JSONField(serialize = false)
+//    @JSONField(serialize = false)
     @Column(name="creator",updatable = false)
     public String getCreator() {
         return creator;
@@ -143,7 +148,7 @@ public abstract class BaseEntity implements Serializable,EntityPersistExpand {
         this.creator = creator;
     }
 
-    @JSONField(serialize = false)
+//    @JSONField(serialize = false)
     @Column(name="lastUpdater")
     public String getLastUpdater() {
         return lastUpdater;

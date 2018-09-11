@@ -55,9 +55,13 @@ public class UserInfoControllerTest extends BaseTest {
     @Rollback(value = true)
     public void addUserInfo() {
         //测试属性组
-        String requestBody = "{\"name\":\"007\",\"password\":\"123456\"}";
+        String requestBody = "{\"userName\":\"008\",\"name\":\"008\",\"password\":\"123456\"}";
         RequestBuilder request;
-        request = post("/api/user/add")
+
+        String s = "";
+
+        request = post("/api/user/addEntity")
+                .header("token","abc")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody);
@@ -206,6 +210,28 @@ public class UserInfoControllerTest extends BaseTest {
         mapValue.add("size","20");
         mapValue.add("sort","userName");
         request = get("/api/user/query")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN)
+                .params(mapValue);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void queryUserInfoByParams() {
+        RequestBuilder request;
+        String userName = "admin";
+        MultiValueMap<String,String> mapValue = new LinkedMultiValueMap<>();
+        mapValue.add("page","1");
+        mapValue.add("createTime[]","2018-08-01");
+        mapValue.add("createTime[]","2018-08-12");
+//        mapValue.add("userName","admin");
+        request = get("/api/user/queryParams")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);

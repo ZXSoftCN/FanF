@@ -5,6 +5,7 @@ import com.zxsoft.fanfanfamily.base.repository.EntityIncreaseDao;
 import com.zxsoft.fanfanfamily.base.repository.MenuDao;
 import com.zxsoft.fanfanfamily.base.service.MenuService;
 import com.zxsoft.fanfanfamily.common.SpringUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.util.*;
@@ -23,6 +24,7 @@ public class Menu extends SimpleEntity {
     private Menu parentMenu;
     private Boolean status;
     private Boolean showMenu;
+    private String componentPath;//记录菜单上绑定的组件页面(如../dashboard/index.js).供后续扩展动态加载菜单及组件路径。
 
 //    @Autowired
 //    private SpringUtil springUtil;
@@ -82,6 +84,17 @@ public class Menu extends SimpleEntity {
         }
         return "";
     }
+    @Transient
+    public void setParentMenuId(String parentMenuId) {
+        if (!StringUtils.isEmpty(parentMenuId)) {
+            MenuDao menuDao = (MenuDao)SpringUtil.getBean("menuDao");
+
+            Optional<Menu> menuOp = menuDao.findById(parentMenuId);
+            if (menuOp.isPresent()) {
+                this.parentMenu = menuOp.get();
+            }
+        }
+    }
 
     @Column(name = "status",columnDefinition = "tinyint(1) DEFAULT 1")
     public Boolean getStatus() {
@@ -117,6 +130,14 @@ public class Menu extends SimpleEntity {
 //    public void setSubMenus(List<Menu> subMenus) {
 //        this.subMenus = subMenus;
 //    }
+
+    public String getComponentPath() {
+        return componentPath;
+    }
+
+    public void setComponentPath(String componentPath) {
+        this.componentPath = componentPath;
+    }
 
     @Override
     public boolean equals(Object o) {

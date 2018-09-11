@@ -35,12 +35,14 @@ public class UserInfo extends BaseEntity {
 
     private String salt;//加密密码的盐
 
-    private byte state;//用户状态,0:创建未认证（比如没有激活，没有输入验证码等等）--等待验证的用户 , 1:正常状态,2：用户被锁定.
+    private boolean state;//用户状态,false:创建未认证（比如没有激活，没有输入验证码等等）--被禁用 , true:正常状态,.
 
     private String iconUrl;
 
-    private Set<Role> roleList;// 一个用户具有多个角色
+    private String telephone;
+    private String email;
 
+    private Set<Role> roleList;// 一个用户具有多个角色
 
     @Column(name = "userName",unique =true)
     public String getUserName() {
@@ -71,6 +73,23 @@ public class UserInfo extends BaseEntity {
         this.password = password;
     }
 
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Column(name = "salt",nullable = false)
     public String getSalt() {
         return salt;
@@ -80,12 +99,12 @@ public class UserInfo extends BaseEntity {
         this.salt = salt;
     }
 
-    @Column(name = "state",columnDefinition="TINYINT default 0")
-    public byte getState() {
+    @Column(name = "state",columnDefinition = "tinyint(1) default 1")
+    public boolean getState() {
         return state;
     }
 
-    public void setState(byte state) {
+    public void setState(boolean state) {
         this.state = state;
     }
 

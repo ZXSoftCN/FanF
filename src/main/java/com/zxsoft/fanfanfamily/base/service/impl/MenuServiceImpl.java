@@ -10,6 +10,7 @@ import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
 import com.zxsoft.fanfanfamily.base.repository.EntityIncreaseDao;
 import com.zxsoft.fanfanfamily.base.repository.MenuDao;
 import com.zxsoft.fanfanfamily.base.service.MenuService;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.*;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -138,6 +141,12 @@ public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuServic
         return Optional.of(newItem);
     }
 
+//    @Override
+//    public Menu modify(Menu menu) {
+//        Optional<Menu> rlt = modifyWithParent(menu,menu.getParentMenuId());
+//        return rlt.orElse(null);
+//    }
+
     @Override
     public List<Menu> addBatchWithParent(List<Menu> menus, Menu parentMenu) {
         if (parentMenu != null) {
@@ -183,5 +192,21 @@ public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuServic
     @Override
     public List<Menu> findAll() {
         return menuDao.findAllByIdIsNotNullOrderBySortNo();
+    }
+
+    @Override
+    public Page<Menu> findMenuByCreateTime(String name, String[] dateTimes, Pageable pageable) {
+        try {
+            Date startTime = DateUtils.parseDate("2000-01-01","yyyy-MM-dd");
+            Date endTime = DateUtils.parseDate("2999-12-31","yyyy-MM-dd");
+            if (dateTimes != null && dateTimes.length > 0) {
+                startTime = DateUtils.parseDate(dateTimes[0],"yyyy-MM-dd");
+                endTime = DateUtils.parseDate(dateTimes[1],"yyyy-MM-dd");
+            }
+            Page<Menu> infos = menuDao.findAllByNameContainingAndCreateTimeAfterAndCreateTimeBefore(name, startTime, endTime, pageable);
+            return infos;
+        } catch (ParseException ex) {
+            return null;
+        }
     }
 }

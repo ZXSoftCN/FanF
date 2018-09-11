@@ -10,6 +10,7 @@ import com.zxsoft.fanfanfamily.base.domain.vo.EntityIdDTO;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
+import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,10 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
     @RequestMapping(value = "/query")
     public ResponseEntity<Page<T>> queryPage(@PageableDefault(size = 15,page = 0,sort = "id",direction = Sort.Direction.ASC)
                                                         Pageable pageable) {
+        //请求页码默认以第1页开始，所以除了录入0页码时，均向前翻一页。
+        if (pageable.getPageNumber() > 0) {
+            pageable = pageable.previousOrFirst();
+        }
         Page<T> pageColl = getBaseService().findAll(pageable);
 
         return ResponseEntity.ok(pageColl);
@@ -123,10 +128,14 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
 
 //        Object obj = JSON.parse(parsingEntity, serializerFeatures);
 //        TypeReference<T> type = new TypeReference<T>() {};
-        T t = JSON.parseObject(parsingEntity,getEntityType(),serializerFeatures);
+        try {
+            T t = JSON.parseObject(parsingEntity, getEntityType(), serializerFeatures);
 
-        T item = getBaseService().add(t);
-        return ResponseEntity.ok(item);
+            T item = getBaseService().add(t);
+            return ResponseEntity.ok(item);
+        } catch (Exception ex) {
+            return FanFResponseBuilder.failure(ex.getMessage(),null);
+        }
     }
 
     @Override

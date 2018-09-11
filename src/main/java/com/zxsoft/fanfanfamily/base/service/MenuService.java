@@ -2,6 +2,8 @@ package com.zxsoft.fanfanfamily.base.service;
 
 import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.vo.MenuWithChildDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +21,6 @@ public interface MenuService extends BaseService<Menu> {
 
     List<MenuWithChildDTO> queryTopMenuAllTree();
     List<Menu> queryTopMenuOnly();
+
+    Page<Menu> findMenuByCreateTime(String name, String[] dateTimes, Pageable pageable);
 }

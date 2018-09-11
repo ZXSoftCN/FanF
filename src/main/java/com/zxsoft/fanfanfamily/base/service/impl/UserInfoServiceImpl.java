@@ -11,10 +11,13 @@ import com.zxsoft.fanfanfamily.base.domain.Role;
 import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import com.zxsoft.fanfanfamily.base.repository.UserInfoDao;
 import com.zxsoft.fanfanfamily.base.service.UserInfoService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -27,10 +30,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.ParseException;
+import java.util.*;
 
 @Service("userInfoService")
 public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements UserInfoService {
@@ -42,6 +43,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
     public JpaRepository<UserInfo, String> getBaseDao() {
         return userInfoDao;
     }
+
 
 
     //<editor-fold desc="私有方法">
@@ -142,11 +144,11 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         if (userInfo.getUserName() == null || userInfo.getUserName().isEmpty()) {
             userInfo.setUserName(userInfo.getName());
         }
-        return addUserInfo(userInfo.getUserName(),userInfo.getName(),userInfo.getPassword());
+        return addUserInfo(userInfo.getUserName(),userInfo.getName(),userInfo.getPassword(),userInfo.getState());
     }
 
     @Override
-    public UserInfo addUserInfo(String userName, String name, String password) throws EmptyResultDataAccessException {
+    public UserInfo addUserInfo(String userName, String name, String password,boolean state) throws EmptyResultDataAccessException {
         if (userName == null || userName.isEmpty()) {
             throw new EmptyResultDataAccessException("账号不允许为空！",10);
         }
@@ -159,10 +161,8 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         String salt = byteSalt.toBase64();
         userInfo.setPassword(hashedPassword);
         userInfo.setSalt(salt);
-
+        userInfo.setState(state);
         userInfoDao.saveAndFlush(userInfo);
-
-
 
 //
 ////创建一个测试密钥：
@@ -171,8 +171,32 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
 //        byte[] fileBytes = null;
 //        cipherService.encrypt(fileBytes, fileBytes);
 //        byte[] encrypted = cipherService.encrypt(fileBytes, testKey).getBytes();
-
         return userInfo;
+    }
+
+    @Override
+    public UserInfo modify(UserInfo userInfo) {
+        if (userInfo == null || StringUtils.isEmpty(userInfo.getId())) {
+            return null;
+        }
+        Optional<UserInfo> oldItemOp = userInfoDao.findById(userInfo.getId());
+        try {
+            if (oldItemOp.isPresent()) {
+                UserInfo oldItem = oldItemOp.get();
+
+                ByteSource byteSalt = RandomGeneratorUtil.getSecRng().nextBytes();
+                String hashedPassword = new Sha256Hash(userInfo.getPassword(),byteSalt.toBase64(),1024).toBase64();
+                String salt = byteSalt.toBase64();
+                userInfo.setPassword(hashedPassword);
+                userInfo.setSalt(salt);
+
+                userInfo.setRoleList(oldItem.getRoleList());
+                return userInfoDao.saveAndFlush(userInfo);
+            }
+        } catch (Exception ex) {
+            logger.error(String.format("用户更新【%s】异常：%s",userInfo.getUserName(),ex.getMessage()));
+        }
+        return null;
     }
 
     @Override
@@ -257,5 +281,22 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         finally {
             session.close();
         }
+    }
+
+    @Override
+    public Page<UserInfo> findUserInfoByCreateTime(String userName, String[] dateTimes, Pageable pageable) {
+        try {
+            Date startTime = DateUtils.parseDate("2000-01-01","yyyy-MM-dd");
+            Date endTime = DateUtils.parseDate("2999-12-31","yyyy-MM-dd");
+            if (dateTimes != null && dateTimes.length > 0) {
+                startTime = DateUtils.parseDate(dateTimes[0],"yyyy-MM-dd");
+                endTime = DateUtils.parseDate(dateTimes[1],"yyyy-MM-dd");
+            }
+            Page<UserInfo> infos = userInfoDao.findAllByUserNameContainingAndCreateTimeAfterAndCreateTimeBefore(userName, startTime, endTime, pageable);
+            return infos;
+        } catch (ParseException ex) {
+            return null;
+        }
+
     }
 }

@@ -2,6 +2,7 @@ package com.zxsoft.fanfanfamily.base.controller;
 
 import com.zxsoft.fanfanfamily.base.domain.Menu;
 import com.zxsoft.fanfanfamily.base.domain.Organization;
+import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import com.zxsoft.fanfanfamily.base.domain.vo.MenuWithChildDTO;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
 import com.zxsoft.fanfanfamily.base.service.MenuService;
@@ -10,6 +11,10 @@ import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,5 +89,23 @@ public class MenuController extends BaseRestControllerImpl<Menu> {
         } else {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+    @FanfAppBody
+    @RequestMapping(value = "/queryParams")
+    public ResponseEntity<Page<Menu>> queryPageParams(@PageableDefault(size = 15,page = 0,sort = "sortNo",direction = Sort.Direction.ASC)
+                                                                  Pageable pageable, @RequestParam(name = "name", required = false,defaultValue = "") String name,
+                                                          @RequestParam(name = "createTime", required = false) String[] arrCreateTime) {
+        /*DateTime[] createTimes = new DateTime[arrCreateTime.length];
+        for (int i = 0; i < arrCreateTime.length; i++) {
+            createTimes[i] = DateTime.parse(arrCreateTime[i]);
+        }*/
+        //请求页码默认以第1页开始，所以除了录入0页码时，均向前翻一页。
+        if (pageable.getPageNumber() > 0) {
+            pageable = pageable.previousOrFirst();
+        }
+        Page<Menu> pageColl = menuService.findMenuByCreateTime(name,arrCreateTime,pageable);
+
+        return ResponseEntity.ok(pageColl);
     }
 }

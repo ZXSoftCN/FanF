@@ -13,6 +13,7 @@ import java.util.Optional;
 @Component
 public class StringToBaseEntityConverterFactory implements ConverterFactory<String,BaseEntity> {
 
+
     @Override
     public <T extends BaseEntity> Converter<String, T> getConverter(Class<T> Class) {
 

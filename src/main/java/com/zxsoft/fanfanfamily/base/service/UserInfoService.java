@@ -7,6 +7,7 @@ import com.zxsoft.fanfanfamily.base.domain.UserInfo;
 import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionDTO;
 import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionInner;
 import com.zxsoft.fanfanfamily.base.domain.vo.UserPermissionNativeDTO;
+import org.joda.time.DateTime;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 public interface UserInfoService  extends BaseService<UserInfo> {
 
-    UserInfo addUserInfo(String userName, String name, String password) throws EmptyResultDataAccessException;
+    UserInfo addUserInfo(String userName, String name, String password,boolean state) throws EmptyResultDataAccessException;
 
     List<Permission> findPermissionByUserInfo(UserInfo userInfo);
     Page<Permission> findPermissionByUserInfo(UserInfo userInfo, Pageable pageAble);
@@ -34,4 +35,6 @@ public interface UserInfoService  extends BaseService<UserInfo> {
 
     List<UserPermissionNativeDTO> findUserPermission(String userName);
     Optional<UserPermissionDTO> findUserInfoPermission(String userName);
+
+    Page<UserInfo> findUserInfoByCreateTime(String userName, String[] dateTimes,Pageable pageable);
 }

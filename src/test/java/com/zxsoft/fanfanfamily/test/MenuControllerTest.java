@@ -149,9 +149,9 @@ public class MenuControllerTest extends BaseTest {
     @Rollback(value = true)
     public void addBaseSubMenuTest1() {
         //language=JSON
-        String requestBody = "[{\"name\":\"测试子节点\",\"pathKey\":\"set$\",\"iconName\":\"set\"}]";
+        String requestBody = "[{\"name\":\"用户描述\",\"pathKey\":\"/set/system/user/:id\",\"iconName\":\"user\",\"sortNo\":1,\"status\":1,\"showMenu\":false,\"componentPath\":\"index.js\"}]";
         RequestBuilder request;
-        request = post("/api/menu/addbatchwithparent/420b1102-9776-4472-b8d2-0e6b5781c37b")
+        request = post("/api/menu/addbatchwithparent/92dd0c6a-8117-4b00-ab2d-a46365bcc15c")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody);

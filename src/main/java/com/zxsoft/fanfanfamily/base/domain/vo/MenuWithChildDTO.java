@@ -25,6 +25,7 @@ public class MenuWithChildDTO extends SimpleEntityDTO {
     private String parentMenu;
     private Boolean status;
     private Boolean showMenu;
+    private String componentPath;
     private List<MenuWithChildDTO> subMenus = new ArrayList<>();
 
     public int getSortNo() {
@@ -81,6 +82,14 @@ public class MenuWithChildDTO extends SimpleEntityDTO {
 
     public void setShowMenu(Boolean showMenu) {
         this.showMenu = showMenu;
+    }
+
+    public String getComponentPath() {
+        return componentPath;
+    }
+
+    public void setComponentPath(String componentPath) {
+        this.componentPath = componentPath;
     }
 
     public List<MenuWithChildDTO> getSubMenus() {

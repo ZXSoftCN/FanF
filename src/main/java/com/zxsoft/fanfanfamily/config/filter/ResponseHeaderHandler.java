@@ -46,7 +46,9 @@ public class ResponseHeaderHandler extends FastJsonHttpMessageConverter {
 
 
         String authToken = "";
-        if ((o.getClass() == FanfAppData.class && ((FanfAppData) o).getStatus() > 0)) {
+        //&& ((FanfAppData) o).getStatus() > 0
+        //FanfAppData中的Status是业务处理状态描述，token是系统机制不应受影响。
+        if ((o.getClass() == FanfAppData.class )) {
             try{
                 Subject current = SecurityUtils.getSubject();
                 //TODO 将返回的Object JWT化绑定到token.（暂用Session记录）
