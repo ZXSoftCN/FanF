@@ -37,6 +37,7 @@ import java.util.*;
 public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements UserInfoService {
 
     private final String resPathName = "userInfo";
+    private final String defaultAvalue = "/uploads/userInfo/avatar/default.jpg";
     @Autowired
     private UserInfoDao userInfoDao;
 
@@ -52,30 +53,39 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         avatarUploadPath = super.getPath().resolve(super.avatar);
     }
 
+    @Override
+    public String getBannedFile() {
+        return defaultAvalue;
+    }
+
     //<editor-fold desc="私有方法">
     private void modifyIcon(UserInfo userInfo, String path) {
-        try {
-            String strOld = userInfo.getIconUrl();
-            if (strOld != null && !strOld.isEmpty()) {
-                if (userInfo.getIconUrl().startsWith("file:/")) {
-                    strOld = userInfo.getIconUrl().replaceFirst("file:/", "");
-                }
-                Path pathOld = Paths.get(strOld);
-                Files.deleteIfExists(pathOld);
-            }
-            userInfo.setIconUrl(path);
-            userInfoDao.save(userInfo);
-        }catch (IOException ex){
-            logger.error(String.format("%s Failed to store file:%s.%s",
-                    this.getClass().getName(),ex.getMessage(), System.lineSeparator()));//System.lineSeparator()换行符
-        }
+
+        deleteInnertFile(userInfo.getIconUrl());
+        userInfo.setIconUrl(StringUtils.join("/",path));
+        userInfoDao.save(userInfo);
     }
-    
+
+    @Override
+    public Boolean delete(String id) {
+        UserInfo item = userInfoDao.findById(id).get();
+        deleteInnertFile(item.getIconUrl());
+        return super.delete(id);
+    }
+
+    @Override
+    public Boolean deleteBatch(List<String> ids) {
+        for (String id : ids) {
+            UserInfo item = userInfoDao.findById(id).get();
+            deleteInnertFile(item.getIconUrl());
+        }
+        return super.deleteBatch(ids);
+    }
+
     @Override
     public String uploadAvatarExtend(UserInfo userInfo, String fileName, String postfix, byte[] bytes) {
         return null;
     }
-
 
     @Override
     public Path loadAvatar(UserInfo userInfo, AvatorLoadFactor factor) {
@@ -89,9 +99,10 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         if (itemNew == null) {
             return null;
         }
-        //将Path路径保存至Region的IconUrl属性
-        modifyIcon(userInfo,itemNew);
-
+        //将Path路径保存至UserInfo的IconUrl属性
+        if (userInfo != null) {
+            modifyIcon(userInfo,itemNew);
+        }
         return itemNew;
     }
 
@@ -150,7 +161,34 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
         if (userInfo.getUserName() == null || userInfo.getUserName().isEmpty()) {
             userInfo.setUserName(userInfo.getName());
         }
-        return addUserInfo(userInfo.getUserName(),userInfo.getName(),userInfo.getPassword(),userInfo.getState());
+        return addExtend(userInfo);
+    }
+
+    private UserInfo addExtend(UserInfo userInfo) {
+        if (userInfo.getUserName() == null || userInfo.getUserName().isEmpty()) {
+            userInfo.setUserName(userInfo.getName());
+        }
+        if (StringUtils.isEmpty(userInfo.getUserName())) {
+            throw new EmptyResultDataAccessException("账号不允许为空！",10);
+        }
+
+        UserInfo newUserInfo = new UserInfo();
+        newUserInfo.setUserName(userInfo.getUserName());
+        newUserInfo.setName(userInfo.getName());
+        ByteSource byteSalt = RandomGeneratorUtil.getSecRng().nextBytes();
+        String hashedPassword = new Sha256Hash(userInfo.getPassword(),byteSalt.toBase64(),1024).toBase64();
+        String salt = byteSalt.toBase64();
+        newUserInfo.setPassword(hashedPassword);
+        newUserInfo.setSalt(salt);
+        newUserInfo.setState(userInfo.getState());
+        if (!StringUtils.isEmpty(userInfo.getIconUrl())) {
+            String strOppoPath = StringUtils.replace(userInfo.getIconUrl().replace("\\", "/"), getClassesPath(), "");
+            newUserInfo.setIconUrl(strOppoPath);
+        } else {
+            newUserInfo.setIconUrl(defaultAvalue);
+        }
+        userInfoDao.saveAndFlush(newUserInfo);
+        return newUserInfo;
     }
 
     @Override
@@ -159,16 +197,16 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
             throw new EmptyResultDataAccessException("账号不允许为空！",10);
         }
 
-        UserInfo userInfo = new UserInfo();
-        userInfo.setUserName(userName);
-        userInfo.setName(name);
+        UserInfo newUserInfo = new UserInfo();
+        newUserInfo.setUserName(userName);
+        newUserInfo.setName(name);
         ByteSource byteSalt = RandomGeneratorUtil.getSecRng().nextBytes();
         String hashedPassword = new Sha256Hash(password,byteSalt.toBase64(),1024).toBase64();
         String salt = byteSalt.toBase64();
-        userInfo.setPassword(hashedPassword);
-        userInfo.setSalt(salt);
-        userInfo.setState(state);
-        userInfoDao.saveAndFlush(userInfo);
+        newUserInfo.setPassword(hashedPassword);
+        newUserInfo.setSalt(salt);
+        newUserInfo.setState(state);
+        userInfoDao.saveAndFlush(newUserInfo);
 
 //
 ////创建一个测试密钥：
@@ -177,7 +215,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
 //        byte[] fileBytes = null;
 //        cipherService.encrypt(fileBytes, fileBytes);
 //        byte[] encrypted = cipherService.encrypt(fileBytes, testKey).getBytes();
-        return userInfo;
+        return newUserInfo;
     }
 
     @Override

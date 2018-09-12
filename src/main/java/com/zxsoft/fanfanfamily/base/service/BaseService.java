@@ -16,9 +16,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public interface BaseService<T> {
 //    void initPath();
+
+    /**
+     * 设定顶层上传文件路径，如\\classes\\uploads
+     * @return
+     */
     Path getOriginPath();
+
+    /**
+     * 设定对应实体的上传文件路径，如\\classes\\uploads\\userInfo
+     * @return
+     */
     Path getPath();
+
+    /**
+     * 设定对应实体的上传头像路径，如\\classes\\uploads\\userInfo\\avatar
+     * @return
+     */
     Path getAvatarPath();
+
+    /**
+     * 设定被禁止删除的默认文件名，如缺省头像文件。
+     * @return
+     */
+    String getBannedFile();
     JpaRepository<T,String> getBaseDao();
 
     //region 用于BaseController对应基础方法
@@ -53,6 +74,7 @@ public interface BaseService<T> {
     String uploadAvatarExtend(T t, MultipartFile file);
 
     Resource downloadResource(String url);
+    void deleteInnertFile(String url);
 
     Path loadAvatar(T t);//获取T的图标、头像、缩略图
     Path loadAvatar(T t, int width, int height, double scaling);//按尺寸，清晰度获取

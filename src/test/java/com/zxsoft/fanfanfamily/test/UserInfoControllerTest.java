@@ -87,7 +87,7 @@ public class UserInfoControllerTest extends BaseTest {
         multiParams.add("id","4ec5f548-a55c-4a92-b4cb-550ba07802b9");
         multiParams.add("postfix","png");//附件后缀
 
-        request = post("/api/user/uploadAvatar")
+        request = post("/api/user/upload")
 //                .accept(MediaType.MULTIPART_FORM_DATA)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .content(Files.readAllBytes(uploadFile))

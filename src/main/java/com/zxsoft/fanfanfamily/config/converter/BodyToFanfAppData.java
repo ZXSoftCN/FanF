@@ -8,6 +8,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Date;
 import java.util.List;
 
 public class BodyToFanfAppData {
@@ -36,7 +37,8 @@ public class BodyToFanfAppData {
                 return FanFResponseBodyBuilder.ok(msg, obj);
             }
             Object simpleObj = JSON.parse(strObj);
-            if (Boolean.class.isAssignableFrom(simpleObj.getClass()) || Number.class.isAssignableFrom(simpleObj.getClass())) {
+            if (Boolean.class.isAssignableFrom(simpleObj.getClass()) || Number.class.isAssignableFrom(simpleObj.getClass())
+                    || String.class.isAssignableFrom(simpleObj.getClass()) || Date.class.isAssignableFrom(simpleObj.getClass())) {
                 return FanFResponseBodyBuilder.ok(msg, simpleObj);
             }
             JSONObject jsonObj = JSON.parseObject(strObj);

@@ -193,7 +193,7 @@ public class EmployeeControllerTest extends BaseTest {
         multiParams.add("fileName","VIP");
         multiParams.add("postfix","png");//附件后缀
 
-        request = post("/api/employee/uploadAvatar")
+        request = post("/api/employee/upload")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .content(Files.readAllBytes(uploadFile))

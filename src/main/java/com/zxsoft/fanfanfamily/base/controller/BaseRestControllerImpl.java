@@ -12,6 +12,7 @@ import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBodyBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanFResponseBuilder;
 import com.zxsoft.fanfanfamily.config.converter.FanfAppData;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +32,7 @@ import java.util.Optional;
 
 /**
  * 在Controller层提供基础方法：getById、queryPage、queryAll、addEntity、modifyEntity、
- * deleteEntity、deleteBatch、uploadAvatar、loadAvatar。
+ * deleteEntity、deleteBatch、upload、loadAvatar。
  *
  *
  *  * 将Controller返回为FanfAppData格式。
@@ -216,20 +218,37 @@ public abstract class BaseRestControllerImpl<T extends BaseEntity> implements Ba
 
     @Override
     @FanfAppBody
-    @PostMapping(value = "/uploadAvatar",consumes = "multipart/form-data")
-    public ResponseEntity<String> uploadAvatar(@RequestParam(value = "id",required = true) String id,
-                             @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
-                             @RequestParam(value = "postfix",required = true) String postfix,
-                             @RequestBody(required = true) byte[] bytes) {
+    @PostMapping(value = "/upload",consumes = "multipart/form-data")
+    public ResponseEntity<String> upload(@RequestParam(value = "id",required = true) String id,
+                                         @RequestParam(value = "fileName",required = false,defaultValue = "Empty") String fileName,
+                                         @RequestParam(value = "postfix",required = true) String postfix,
+                                         @RequestBody(required = true) byte[] bytes) {
         String path =null;
         Optional<T> item = getBaseService().getById(id);
         if (item.isPresent()) {
             path = getBaseService().uploadAvatarExtend(item.get(),fileName,postfix,bytes);
-            if (path != null) {
-                return ResponseEntity.ok().body(path);
-            }
         }
-        return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.ok().body(path);
+    }
+
+    @Override
+    @FanfAppBody
+    @PostMapping(value = "/uploadAvatar",consumes = "multipart/form-data")
+    public ResponseEntity<String> upload(@RequestParam(name = "file") MultipartFile file,@RequestParam(name = "id",required = false) String id) {
+        String strRlt=null;
+        String path = null;
+        Optional<T> item = getBaseService().getById(id);
+        if (item.isPresent()) {
+            path = getBaseService().uploadAvatarExtend(item.get(),file);
+        }else{
+            path = getBaseService().uploadAvatar(file);
+        }
+
+        if (path != null) {
+            String strHeaderURL = StringUtils.replace(httpServletRequest.getRequestURL().toString(),httpServletRequest.getRequestURI(),"");
+            strRlt = StringUtils.join(strHeaderURL,"/",path);
+        }
+        return ResponseEntity.ok().body(strRlt);
     }
 
     @Override

@@ -212,6 +212,11 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
+    public String getBannedFile() {
+        return "";
+    }
+
+    @Override
     public abstract JpaRepository<T,String> getBaseDao();
 
     @Override
@@ -466,5 +471,25 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
         }
 //        logger.debug(String.format("加载%s，使用默认头像。",getClass().getName()));
         return getDefaultAvatar();
+    }
+
+    /**
+     * 删除实体的附件。
+     * @param url
+     */
+    @Override
+    public void deleteInnertFile(String url) {
+        if (url != null && !url.isEmpty() && !url.equalsIgnoreCase(getBannedFile())) {
+            if (url.startsWith("file:/")) {
+                url = url.replaceFirst("file:/", "");
+            }
+            Path pathOld = Paths.get(StringUtils.join(getClassesPath(),url));
+            try{
+                Files.deleteIfExists(pathOld);
+            }catch (IOException ex){
+                logger.error(String.format("%s 删除头像图标【%s】失败:%s.%s",
+                        this.getClass().getName(),pathOld.toAbsolutePath(),ex.getMessage(),System.lineSeparator()));//System.lineSeparator()换行符
+            }
+        }
     }
 }

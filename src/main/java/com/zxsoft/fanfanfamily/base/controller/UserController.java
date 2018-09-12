@@ -83,25 +83,4 @@ public class UserController extends BaseRestControllerImpl<UserInfo> {
         return ResponseEntity.ok(pageColl);
     }
 
-    @FanfAppBody
-    @PostMapping(value = "/upload",consumes = "multipart/form-data")
-    public ResponseEntity<String> uploadAvatar(@RequestParam("avatar") MultipartFile file) {
-        String strRlt=null;
-//        Optional<T> item = getBaseService().getById(id);
-
-        String path = userInfoService.uploadAvatar(file);
-        if (path != null) {
-            String strHeaderURL = StringUtils.replace(httpServletRequest.getRequestURL().toString(),httpServletRequest.getRequestURI(),"");
-            strRlt = StringUtils.join(strHeaderURL,"/",path);
-            return ResponseEntity.ok().body(strRlt);
-        }
-
-//        if (item.isPresent()) {
-//            path = userInfoService.uploadAvatar(file);
-//            if (path != null) {
-//                return ResponseEntity.ok().body(path);
-//            }
-//        }
-        return ResponseEntity.badRequest().body(null);
-    }
 }

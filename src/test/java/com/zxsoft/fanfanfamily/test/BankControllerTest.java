@@ -77,7 +77,7 @@ public class BankControllerTest extends BaseTest {
         multiParams.add("bankId","4ec5f548-a55c-4a92-b4cb-550ba07802b9");
         multiParams.add("postfix","png");//附件后缀
 
-        request = post("/api/bank/uploadAvatar")
+        request = post("/api/bank/upload")
 //                .accept(MediaType.MULTIPART_FORM_DATA)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .content(Files.readAllBytes(uploadFile))
