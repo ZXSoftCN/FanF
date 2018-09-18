@@ -59,6 +59,25 @@ public class RegionControllerTest extends BaseTest {
     }
 
     @Test
+    public void addRegionWithParent() {
+        //language=JSON
+        String requestBody = "{\"name\":\"东城区\",\"parentRegionId\":\"f5e5e094-aca2-4810-b0bc-d814ae76149e\"}";
+        RequestBuilder request;
+        request = post("/api/region/addEntity")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
 //    @Rollback(value = true)
     public void addRegionResource() throws IOException {
         //测试属性组
@@ -186,10 +205,33 @@ public class RegionControllerTest extends BaseTest {
     public void queryRegion() {
         RequestBuilder request;
 
-        String regionId = "e3a9bbec-b519-4364-9d6c-55c08cbe7e32";// "402881e564c015100164c0154cbe0000";
+        String regionId = "f5e5e094-aca2-4810-b0bc-d814ae76149e";// "402881e564c015100164c0154cbe0000";
+
         request = get(String.format("/api/region/get/%s",regionId))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN);
+
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+
+    @Test
+    public void querySubs() {
+        RequestBuilder request;
+
+        String regionId = "f5e5e094-aca2-4810-b0bc-d814ae76149e";// "402881e564c015100164c0154cbe0000";
+        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
+        multiParams.add("id",regionId);
+        request = get("/api/region/querySubs")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN)
+                .params(multiParams);
 
         try {
             mockMvc.perform(request)
@@ -230,6 +272,21 @@ public class RegionControllerTest extends BaseTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void queryTree() {
+        RequestBuilder request;
+        request = get("/api/region/queryTree")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
         try {
             mockMvc.perform(request)
                     .andExpect(status().isOk())

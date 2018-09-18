@@ -209,4 +209,21 @@ public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuServic
             return null;
         }
     }
+
+    @Override
+    public List<MenuWithChildDTO> queryTree() {
+        List<MenuWithChildDTO> lstRlt = new ArrayList<>();
+        List<Menu> topMenus = menuDao.findAllByParentMenuIsNullOrderBySortNo();
+        for (Menu item : topMenus) {
+            MenuWithChildDTO dtoItem = MenuWithChildDTO.convert(item);
+            fetchSubMenus(dtoItem);
+            lstRlt.add(dtoItem);
+        }
+        return lstRlt;
+    }
+
+    @Override
+    public List<Menu> querySubs(String id) {
+        return menuDao.customQueryAllByParentMenuId(id);
+    }
 }

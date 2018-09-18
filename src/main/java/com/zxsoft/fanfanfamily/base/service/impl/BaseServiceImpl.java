@@ -129,7 +129,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
             if(logger.isDebugEnabled()){
                 logger.debug(String.format("初始化%s编号最大值为：%d",getEntityName(),codeNumMax.orElse(INIT_NUM)));
             }
-            getSortNoMax().set(codeNumMax.orElse(INIT_NUM));
+            getCodeNumMax().set(codeNumMax.orElse(INIT_NUM));
         }catch(Exception e){
             logger.error(String.format("初始化获取%s编号最大值异常:%s",getEntityName(),e.getMessage()));
         }
@@ -140,8 +140,11 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
         String newCode = null;
         Optional<EntityIncrease> itemIncrease = entityIncreaseDao.findFirstByEntityNameIgnoreCase(getEntityName());
         if (itemIncrease.isPresent()) {
-            DateTimeFormatter df = DateTimeFormatter.ofPattern(itemIncrease.get().getDateFormat());
-            String datePart = DateTime.now().toString(itemIncrease.get().getDateFormat());
+            String datePart = null;
+            if (!StringUtils.isBlank(itemIncrease.get().getDateFormat())) {
+                DateTimeFormatter df = DateTimeFormatter.ofPattern(itemIncrease.get().getDateFormat());
+                datePart = DateTime.now().toString(itemIncrease.get().getDateFormat());
+            }
             String prefixPart = itemIncrease.get().getPrefix();
             int codeNumLength = itemIncrease.get().getCodeNumLength();
             String separate = itemIncrease.get().getSeparate();
@@ -149,8 +152,12 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
             Long maxNumLong = Long.decode(maxNumPlus) + getCodeNumMax().incrementAndGet();
             String numPart = maxNumLong.toString().substring(1);//去除首位字符1
             List<String> lstJoin = new ArrayList<>();
-            lstJoin.add(prefixPart);
-            lstJoin.add(datePart);
+            if (!StringUtils.isEmpty(prefixPart)) {
+                lstJoin.add(prefixPart);
+            }
+            if (!StringUtils.isEmpty(datePart)) {
+                lstJoin.add(datePart);
+            }
             lstJoin.add(numPart);
             newCode = StringUtils.join(lstJoin.iterator(),separate);
         }

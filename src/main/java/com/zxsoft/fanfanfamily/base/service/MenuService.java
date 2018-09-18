@@ -21,6 +21,8 @@ public interface MenuService extends BaseService<Menu> {
 
     List<MenuWithChildDTO> queryTopMenuAllTree();
     List<Menu> queryTopMenuOnly();
+    List<MenuWithChildDTO> queryTree();
+    List<Menu> querySubs(String id);
 
     Page<Menu> findMenuByCreateTime(String name, String[] dateTimes, Pageable pageable);
 }

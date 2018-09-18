@@ -60,9 +60,7 @@ public class MenuController extends BaseRestControllerImpl<Menu> {
                                           @RequestBody List<Menu> menus) {
         try {
             List<Menu> lstMenu = menuService.addBatchWithParent(menus, parentMenu);
-
             return FanFResponseBodyBuilder.ok(String.format("创建菜单成功:%d", lstMenu.size()), lstMenu);
-
         } catch (Exception ex) {
             return FanFResponseBodyBuilder.error(String.format("创建菜单失败：%s", ex.getMessage()), null);
         }
@@ -72,9 +70,7 @@ public class MenuController extends BaseRestControllerImpl<Menu> {
     public FanfAppData addBatch(@RequestBody List<Menu> menus) {
         try {
             List<Menu> lstMenu = menuService.addBatch(menus);
-
             return FanFResponseBodyBuilder.ok(String.format("创建菜单成功:%d", lstMenu.size()), lstMenu);
-
         } catch (Exception ex) {
             return FanFResponseBodyBuilder.error(String.format("创建菜单失败：%s", ex.getMessage()), null);
         }
@@ -85,7 +81,6 @@ public class MenuController extends BaseRestControllerImpl<Menu> {
     public ResponseEntity<List<MenuWithChildDTO>> queryTopMenuAllTree() {
 
         List<MenuWithChildDTO> lstMenu = menuService.queryTopMenuAllTree();
-
         if (lstMenu != null) {
             return ResponseEntity.ok(lstMenu);
         } else {
@@ -109,6 +104,32 @@ public class MenuController extends BaseRestControllerImpl<Menu> {
         Page<Menu> pageColl = menuService.findMenuByCreateTime(name,arrCreateTime,pageable);
 
         return ResponseEntity.ok(pageColl);
+    }
+
+    @RequestMapping("/queryTree")
+    @FanfAppBody
+    public ResponseEntity<List<MenuWithChildDTO>> queryTree() {
+
+        List<MenuWithChildDTO> lstMenu = menuService.queryTree();
+
+        if (lstMenu != null) {
+            return ResponseEntity.ok(lstMenu);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+
+    @RequestMapping("/querySubs")
+    @FanfAppBody
+    public ResponseEntity<List<Menu>> querySubs(@RequestParam(name = "id") String id) {
+
+        List<Menu> lstMenu = menuService.querySubs(id);
+        if (lstMenu != null) {
+            return ResponseEntity.ok(lstMenu);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
 }

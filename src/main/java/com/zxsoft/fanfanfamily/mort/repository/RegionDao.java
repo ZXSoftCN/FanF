@@ -32,6 +32,8 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     Page<Region> findByCodeStartingWith(String codeStart,Pageable page);
     List<Region> findAllByCodeStartingWith(String codeStart);
 
+    List<Region> findAllByIdNotNullOrderByCode();
+    List<Region> findAllByParentRegionIsNullOrderByCode();
     
     //扩展
     List<Region> findRegionsByBanksIn(Bank bank);
@@ -50,6 +52,10 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     @Modifying
     @Query("update Region u set u.logoUrl = ?1 where u.id = ?2")
     int modifyLogoUrlById(String logoUrl, String id);
+
+    @EntityGraph(attributePaths = { "parentRegion"})
+    @Query(value = "select u from Region u where u.parentRegion.id = ?1 order by u.code")
+    List<Region> customQueryAllByParentRegionId(String id);
 
 //    @Query("select r.code,count(s.Id) from region r left join bank s on r.id = s.regsionId where r.id = ?1 group by r")
 //    @Query("select r as region,count(s.id) as BankCount from Region r left join Bank s on r.id = s.region\n" +

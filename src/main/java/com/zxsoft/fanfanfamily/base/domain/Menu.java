@@ -68,7 +68,8 @@ public class Menu extends SimpleEntity {
 
     @JSONField(serialize = false)
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH})
-    @JoinColumn(name = "parentMenuId",columnDefinition = "varchar(36) DEFAULT ''")
+    @JoinColumn(name = "parentMenuId",columnDefinition = "varchar(36) DEFAULT ''",
+            foreignKey = @ForeignKey(name = "none",value = ConstraintMode.NO_CONSTRAINT))
     public Menu getParentMenu() {
         return parentMenu;
     }

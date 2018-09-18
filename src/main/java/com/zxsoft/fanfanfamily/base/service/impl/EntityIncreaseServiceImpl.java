@@ -4,6 +4,7 @@ import com.zxsoft.fanfanfamily.base.domain.EntityIncrease;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
 import com.zxsoft.fanfanfamily.base.repository.EntityIncreaseDao;
 import com.zxsoft.fanfanfamily.base.service.EntityIncreaseService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +51,6 @@ public class EntityIncreaseServiceImpl extends BaseServiceImpl<EntityIncrease> i
 
     @Override
     public int getSortNoMaxPlus(String entityName) {
-
         return 0;
     }
 
@@ -63,5 +63,39 @@ public class EntityIncreaseServiceImpl extends BaseServiceImpl<EntityIncrease> i
     public Page<EntityIncrease> findEntityIncreaseByName(String name, Pageable pageable) {
         Page<EntityIncrease> infos = entityIncreaseDao.findEntityIncreaseByNameContaining(name,  pageable);
         return infos;
+    }
+
+    @Override
+    public void updateCodeMaxNum(String entityName,String code) {
+        Optional<EntityIncrease> itemOp = entityIncreaseDao.findFirstByEntityNameIgnoreCase(entityName);
+        if (!itemOp.isPresent()) {
+            logger.warn(String.format("已【%s】更新编码规则失败，没有找到规则中的实体名【%s】。",code,entityName));
+            return;
+        }
+        EntityIncrease item = itemOp.get();
+        String[] strSplit = StringUtils.split(code,item.getSeparate());
+        if (strSplit.length < 1) {
+            logger.warn(String.format("更新编码规则【%s】失败：编码【%s】使用【%s】分隔符无法分隔出编码流水号。",
+                    entityName,code,item.getSeparate()));
+            return;
+        }
+        String lastCodeNum = "";
+        if (strSplit.length > 1) {
+            lastCodeNum = strSplit[strSplit.length - 1];
+        } else{
+            lastCodeNum = strSplit[0];
+        }
+        if (StringUtils.isEmpty(lastCodeNum)) {
+            logger.warn(String.format("更新编码规则【%s】失败：编码【%s】分隔出来的当前流水号为空字符串。",entityName,code));
+            return;
+        }
+        try {
+            Integer codeMax = Integer.parseInt(lastCodeNum);
+            entityIncreaseDao.updateCodeNumMax(entityName,codeMax);
+        } catch (Exception ex) {
+            logger.error(String.format("更新编码规则【%s】失败：编码【%s】分隔出来的当前流水号【%s】无法转换成Int型",
+                    entityName,code,lastCodeNum));
+            return;
+        }
     }
 }

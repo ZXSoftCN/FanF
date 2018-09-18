@@ -41,4 +41,5 @@ public interface MenuDao extends JpaRepository<Menu, String> {
     @EntityGraph(attributePaths = { "parentMenu"})
     @Query(value = "select u from Menu u where u.parentMenu.id = ?1 order by u.sortNo")
     List<Menu> customQueryAllByParentMenuId(String id);
+    
 }

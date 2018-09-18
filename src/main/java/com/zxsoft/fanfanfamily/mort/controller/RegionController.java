@@ -4,20 +4,15 @@ import com.zxsoft.fanfanfamily.base.controller.BaseRestControllerImpl;
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
 import com.zxsoft.fanfanfamily.base.service.BaseService;
-import com.zxsoft.fanfanfamily.base.service.RegionService;
-import com.zxsoft.fanfanfamily.base.sys.PageableBody;
-import org.hibernate.collection.internal.PersistentSet;
+import com.zxsoft.fanfanfamily.mort.domain.vo.RegionWithChildDTO;
+import com.zxsoft.fanfanfamily.mort.service.RegionService;
+import com.zxsoft.fanfanfamily.base.sys.FanfAppBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -99,5 +94,31 @@ public class RegionController extends BaseRestControllerImpl<Region> {
             itemR = ResponseEntity.status(200).body(null);
         }
         return itemR;
+    }
+
+    @RequestMapping("/queryTree")
+    @FanfAppBody
+    public ResponseEntity<List<RegionWithChildDTO>> queryTree() {
+
+        List<RegionWithChildDTO> lstRegion = regionService.queryTree();
+
+        if (lstRegion != null) {
+            return ResponseEntity.ok(lstRegion);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+
+    @RequestMapping("/querySubs")
+    @FanfAppBody
+    public ResponseEntity<List<Region>> querySubs(@RequestParam(name = "id") String id) {
+
+        List<Region> lstRegion = regionService.querySubs(id);
+        if (lstRegion != null) {
+            return ResponseEntity.ok(lstRegion);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }

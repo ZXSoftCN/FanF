@@ -71,7 +71,7 @@ public class MenuControllerTest extends BaseTest {
         //language=JSON
         String requestBody = "{\"name\":\"工作台1\",\"pathKey\":\"desk1$\",\"iconName\":\"home\",\"status\":false}";
         RequestBuilder request;
-        request = post("/api/menu/add")
+        request = post("/api/menu/addEntity")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody);
@@ -317,6 +317,42 @@ public class MenuControllerTest extends BaseTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void queryTree() {
+        RequestBuilder request;
+        request = get("/api/menu/queryTree")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void querySubs() {
+        RequestBuilder request;
+
+        String menuId = "68271c6e-353e-4d9f-8ad0-ae734651e3ac";// "402881e564c015100164c0154cbe0000";
+        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
+        multiParams.add("id",menuId);
+        request = get("/api/menu/querySubs")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN)
+                .params(multiParams);
+
         try {
             mockMvc.perform(request)
                     .andExpect(status().isOk())

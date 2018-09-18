@@ -1,7 +1,9 @@
 package com.zxsoft.fanfanfamily.test;
 
 import com.zxsoft.fanfanfamily.base.domain.Region;
-import com.zxsoft.fanfanfamily.base.service.RegionService;
+import com.zxsoft.fanfanfamily.mort.service.RegionService;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,27 @@ public class RegionServiceTest extends BaseTest {
     @Autowired
     private RegionService regionService;
 
+
+    @Test
+    public void testSync() {
+
+        String code = "re-20180913-00043";
+        String[] strSplit = StringUtils.split(code,"-");
+        if (strSplit.length < 1) {
+            return;
+        }
+        String lastCodeNum = "";
+        if (strSplit.length > 1) {
+            lastCodeNum = strSplit[strSplit.length - 1];
+        } else{
+            lastCodeNum = strSplit[0];
+        }
+        if (StringUtils.isEmpty(lastCodeNum)) {
+            return;
+        }
+        Long codeMax = Long.parseLong(lastCodeNum);
+        Assume.assumeTrue(codeMax > 0);
+    }
 
     @Test
     public void getPath(){

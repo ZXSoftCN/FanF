@@ -17,7 +17,6 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -26,10 +25,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
 
@@ -37,7 +33,7 @@ import java.util.*;
 public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements UserInfoService {
 
     private final String resPathName = "userInfo";
-    private final String defaultAvalue = "/uploads/userInfo/avatar/default.jpg";
+    private final String defaultAvatar = "/uploads/userInfo/avatar/default.jpg";
     @Autowired
     private UserInfoDao userInfoDao;
 
@@ -55,7 +51,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
 
     @Override
     public String getBannedFile() {
-        return defaultAvalue;
+        return defaultAvatar;
     }
 
     //<editor-fold desc="私有方法">
@@ -185,7 +181,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfo>  implements U
             String strOppoPath = StringUtils.replace(userInfo.getIconUrl().replace("\\", "/"), getClassesPath(), "");
             newUserInfo.setIconUrl(strOppoPath);
         } else {
-            newUserInfo.setIconUrl(defaultAvalue);
+            newUserInfo.setIconUrl(defaultAvatar);
         }
         userInfoDao.saveAndFlush(newUserInfo);
         return newUserInfo;

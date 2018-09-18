@@ -1,9 +1,11 @@
-package com.zxsoft.fanfanfamily.base.service.impl;
+package com.zxsoft.fanfanfamily.mort.service.impl;
 
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.RegionResource;
 import com.zxsoft.fanfanfamily.base.domain.vo.AvatorLoadFactor;
-import com.zxsoft.fanfanfamily.base.service.RegionService;
+import com.zxsoft.fanfanfamily.base.service.impl.BaseServiceImpl;
+import com.zxsoft.fanfanfamily.mort.domain.vo.RegionWithChildDTO;
+import com.zxsoft.fanfanfamily.mort.service.RegionService;
 import com.zxsoft.fanfanfamily.mort.repository.RegionDao;
 import com.zxsoft.fanfanfamily.mort.repository.RegionRescourceDao;
 import org.apache.commons.collections.IteratorUtils;
@@ -17,15 +19,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class RegionServiceImpl extends BaseServiceImpl<Region> implements RegionService {
 
     private final String resPathName = "region";
+    private final String defaultAvatar = "/uploads/region/avatar/default.jpg";
+
+    //静态变量存储编码流水号最大值
+    private static final AtomicInteger atomicCodeNum = new AtomicInteger();
 //    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -38,23 +48,24 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
 
     //<editor-fold desc="私有方法">
     private void modifyIcon(Region region, String path) {
-        try {
-            String strOld = region.getLogoUrl();
-            if (region.getLogoUrl().startsWith("file:/")) {
-                strOld = region.getLogoUrl().replaceFirst("file:/", "");
-            }
-            Path pathOld = Paths.get(strOld);
-            Files.deleteIfExists(pathOld);
-
-            region.setLogoUrl(path);
-            regionDao.save(region);
-        }catch (IOException ex){
-            logger.error(String.format("%s Failed to store file:%s.%s",
-                    this.getClass().getName(),ex.getMessage(), System.lineSeparator()));//System.lineSeparator()换行符
-        }
+        deleteInnertFile(region.getLogoUrl());
+        region.setLogoUrl(StringUtils.join("/",path));
+        regionDao.save(region);
     }
 
     //</editor-fold>
+
+    /**
+     * @Author  javaloveiphone
+     * @Description :初始化设置区域编码流水号最大值
+     * @throws Exception
+     * void
+     */
+    @PostConstruct
+    public void initMax(){
+        initCodeNumMax();
+    }
+
 
     @Override
     protected void initPath() {
@@ -63,26 +74,25 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
         avatarUploadPath = super.getPath().resolve(super.avatar);
     }
 
-//    @Override
-//    public Path getPath() {
-//        if (rootUploadPath == null) {
-//            initPath();
-//        }
-//        return rootUploadPath;
-//    }
-//    @Override
-//    public Path getAvatarPath() {
-//        if (avatarUploadPath == null) {
-//            initPath();
-//        }
-//        return avatarUploadPath;
-//    }
+    @Override
+    public String getBannedFile() {
+        return defaultAvatar;
+    }
 
     @Override
     public JpaRepository<Region, String> getBaseDao() {
         return regionDao;
     }
 
+    @Override
+    public String getEntityName() {
+        return resPathName;
+    }
+
+    @Override
+    public AtomicInteger getCodeNumMax() {
+        return atomicCodeNum;
+    }
 
     @Override
     public RegionResource addResource(MultipartFile file, String regionId) {
@@ -190,6 +200,26 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     }
 
     @Override
+    public Region modify(Region region) {
+        if (region == null || StringUtils.isEmpty(region.getId())) {
+            return null;
+        }
+        Optional<Region> oldItemOp = regionDao.findById(region.getId());
+        try {
+            if (oldItemOp.isPresent()) {
+                Region oldItem = oldItemOp.get();
+
+                region.setResources(oldItem.getResources());
+                region.setBanks(oldItem.getBanks());
+                return regionDao.saveAndFlush(region);
+            }
+        } catch (Exception ex) {
+            logger.error(String.format("区域更新【%s】异常：%s",region.getName(),ex.getMessage()));
+        }
+        return null;
+    }
+
+    @Override
     public RegionResource modifyResource(RegionResource regionResource) {
         return null;
     }
@@ -270,15 +300,44 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
         return null;
     }
 
-
     @Override
-    public void delete(Region region) {
-
+    public Boolean delete(String id) {
+        try {
+            Region item = regionDao.findById(id).get();
+            delete(item);
+            return true;
+        } catch (Exception ex) {
+            logger.error(String.format("删除区域【%s】失败，异常：【%s】",id,ex.getMessage()));
+            return false;
+        }
     }
 
+    @Transactional
+    @Override
+    public void delete(Region region) {
+        Set<RegionResource> regionResources = region.getResources();
+        for (RegionResource item : regionResources) {
+            deleteResource(item);
+        }
+        deleteInnertFile(region.getLogoUrl());
+        try{
+            //TODO 测试事务用，提交前删除。
+            int i = 12 / 0 ;//测试,抛出异常
+            regionDao.delete(region);
+        }catch (Exception ex) {
+            logger.error(String.format("删除区域【%s】失败，异常：【%s】",region.getId(),ex.getMessage()));
+        }
+    }
+
+    @Transactional
     @Override
     public void deleteResource(RegionResource regionResource) {
-
+        try {
+            deleteInnertFile(regionResource.getResUrl());
+            regionRescourceDao.delete(regionResource);
+        } catch (Exception ex) {
+            logger.error(String.format("删除区域资源【%s】失败，异常：【%s】",regionResource.getId(),ex.getMessage()));
+        }
     }
 
     @Override
@@ -329,5 +388,30 @@ public class RegionServiceImpl extends BaseServiceImpl<Region> implements Region
     @Override
     public Optional<Region> findFirstByCode(String code) {
         return regionDao.findFirstByCode(code);
+    }
+
+    private void fetchSubRegions(RegionWithChildDTO region) {
+        if (region.getSubRegions() != null && region.getSubRegions().size() > 0) {
+            for (RegionWithChildDTO item : region.getSubRegions()) {
+                fetchSubRegions(item);
+            }
+        }
+    }
+    @Override
+    public List<RegionWithChildDTO> queryTree() {
+        List<RegionWithChildDTO> lstRlt = new ArrayList<>();
+        List<Region> topRegions = regionDao.findAllByParentRegionIsNullOrderByCode();
+        for (Region item : topRegions) {
+            RegionWithChildDTO dtoItem = RegionWithChildDTO.convert(item);
+            fetchSubRegions(dtoItem);
+            lstRlt.add(dtoItem);
+        }
+        return lstRlt;
+    }
+
+    @Override
+    public List<Region> querySubs(String id) {
+
+        return regionDao.customQueryAllByParentRegionId(id);
     }
 }
