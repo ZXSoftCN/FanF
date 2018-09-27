@@ -145,6 +145,7 @@ public class BankControllerTest extends BaseTest {
         }
     }
 
+
     @Test
     public void queryBankByPage() {
         RequestBuilder request;
@@ -157,6 +158,42 @@ public class BankControllerTest extends BaseTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.TEXT_PLAIN)
                 .params(mapValue);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void queryTree() {
+        RequestBuilder request;
+        request = get("/api/bank/queryTree")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
+        try {
+            mockMvc.perform(request)
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }catch (Exception ex){
+            System.out.print(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void querySubs() {
+        RequestBuilder request;
+
+        String regionId = "67117d84-4e15-4ac7-b704-caeed79652a9";// "402881e564c015100164c0154cbe0000";
+        MultiValueMap<String,String> multiParams = new LinkedMultiValueMap<>();
+        multiParams.add("id",regionId);
+        request = get("/api/bank/querySubs")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN)
+                .params(multiParams);
+
         try {
             mockMvc.perform(request)
                     .andExpect(status().isOk())

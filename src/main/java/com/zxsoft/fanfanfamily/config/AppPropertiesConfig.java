@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -17,7 +18,6 @@ import java.util.List;
 @Configuration
 //@ConfigurationProperties(prefix = "com.zxsoft.fanfanfamily")
 public class AppPropertiesConfig {
-
 
     @Value("${key}")
     private String contentKey;
@@ -75,6 +75,9 @@ public class AppPropertiesConfig {
 
     @Autowired
     private AppCrossOriginProperties appCrossOriginProperties;
+    @Autowired
+    private AppYmlConfig ymlConfig;
+
 
     public String getContentKey() {
         return contentKey;
@@ -177,5 +180,9 @@ public class AppPropertiesConfig {
 
     public String getDefaultAvatar() {
         return defaultAvatar;
+    }
+
+    public List<String> getBannedFiles() {
+        return ymlConfig.getBannedFiles();
     }
 }

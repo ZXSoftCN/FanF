@@ -37,6 +37,8 @@ public interface RegionDao extends JpaRepository<Region, String>,RegionDaoCustom
     
     //扩展
     List<Region> findRegionsByBanksIn(Bank bank);
+    @EntityGraph(attributePaths = { "resources","banks","organizations" })
+    Region queryRegionById(String id);
     @EntityGraph(attributePaths = { "resources"})
     Page<Region> queryRegionsByIdIsNotNull(Pageable page);
     @EntityGraph(attributePaths = { "resources","banks","organizations" })

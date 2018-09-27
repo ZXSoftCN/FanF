@@ -1,0 +1,8 @@
+fanfanfamily:
+  BannedFiles:
+    - /uploads/userInfo/avatar/default.jpg
+    - /uploads/bank/建行.jpg
+jpa:
+  event:
+    merge:
+      entity_copy_observer: allow

@@ -103,7 +103,7 @@ public class Region extends BaseEntity {
     }
 
     @JSONField(serialize = false)
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "sys_region_bank",
             joinColumns = {@JoinColumn(name = "regionId", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "bankId", referencedColumnName ="id",
@@ -166,5 +166,21 @@ public class Region extends BaseEntity {
             return this.getId();
         }
         return super.toString();
+    }
+
+    public void addBank(Bank bank) {
+        if (bank == null || banks.contains(bank)) {
+            return;
+        }
+        banks.add(bank);
+        bank.getRegions().add(this);
+    }
+
+    public void removeBank(Bank bank) {
+        if (bank == null || !banks.contains(bank)) {
+            return;
+        }
+        banks.remove(bank);
+        bank.getRegions().remove(this);
     }
 }

@@ -486,7 +486,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
      */
     @Override
     public void deleteInnertFile(String url) {
-        if (url != null && !url.isEmpty() && !url.equalsIgnoreCase(getBannedFile())) {
+        if (url != null && !url.isEmpty() && !isBannedUrl(url)) {
             if (url.startsWith("file:/")) {
                 url = url.replaceFirst("file:/", "");
             }
@@ -498,5 +498,9 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
                         this.getClass().getName(),pathOld.toAbsolutePath(),ex.getMessage(),System.lineSeparator()));//System.lineSeparator()换行符
             }
         }
+    }
+
+    protected boolean isBannedUrl(String url) {
+        return appPropertiesConfig.getBannedFiles().contains(url);
     }
 }

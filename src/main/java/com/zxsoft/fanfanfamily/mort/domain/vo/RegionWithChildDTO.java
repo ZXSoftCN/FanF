@@ -1,5 +1,6 @@
 package com.zxsoft.fanfanfamily.mort.domain.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.zxsoft.fanfanfamily.base.domain.Region;
 import com.zxsoft.fanfanfamily.base.domain.SimpleEntity;
 import com.zxsoft.fanfanfamily.common.SpringUtil;
@@ -44,6 +45,7 @@ public class RegionWithChildDTO extends SimpleEntity {
         this.parentRegion = parentRegion;
     }
 
+    @JSONField(name = "children")
     public List<RegionWithChildDTO> getSubRegions() {
         if (getId() != null) {
             RegionDao regionDao = (RegionDao) SpringUtil.getBean("regionDao");

@@ -115,6 +115,8 @@ public class Menu extends SimpleEntity {
         this.showMenu = showMenu;
     }
 
+
+
 //    @Transient
 //    public List<Menu> getSubMenus() {
 //        if (getId() != null) {
@@ -140,6 +142,7 @@ public class Menu extends SimpleEntity {
         this.componentPath = componentPath;
     }
 
+    //region Override方法
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -171,4 +174,5 @@ public class Menu extends SimpleEntity {
         }
         return super.toString();
     }
+    //endregion
 }
